@@ -1,0 +1,1426 @@
+<title>Climate Ripple</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: warming-stripes hero, then a sticky "your life" control panel beside a scrolling cause → effect story */
+:root{
+  --bg:#eef3f5; --surface:#ffffff; --surface-2:#e2eaee; --ink:#10212e; --muted:#4d606e; --line:#c8d5dc;
+  --accent:#0b6e8a; --accent-ink:#ffffff; --halo:#ffffff;
+  --c-travel:#2f66d0; --c-home:#c4850a; --c-food:#3c8c45; --c-stuff:#9a4fc0; --c-shared:#6c7c89;
+  --good:#2f7d4a; --warn:#a8680b; --bad:#c0392b;
+  --f-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body:"Instrument Sans", "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0b151c; --surface:#122029; --surface-2:#1a2a35; --ink:#e3ecf1; --muted:#93a6b3; --line:#263a47;
+  --accent:#53b8d4; --accent-ink:#04202a; --halo:#122029;
+  --c-travel:#6b97ee; --c-home:#e6ae45; --c-food:#6cbf72; --c-stuff:#c28ae0; --c-shared:#9aa9b5;
+  --good:#5cc07f; --warn:#e3a646; --bad:#ef6f5e; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0b151c; --surface:#122029; --surface-2:#1a2a35; --ink:#e3ecf1; --muted:#93a6b3; --line:#263a47;
+  --accent:#53b8d4; --accent-ink:#04202a; --halo:#122029;
+  --c-travel:#6b97ee; --c-home:#e6ae45; --c-food:#6cbf72; --c-stuff:#c28ae0; --c-shared:#9aa9b5;
+  --good:#5cc07f; --warn:#e3a646; --bad:#ef6f5e; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:15px; line-height:1.55; margin:0}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--f-display); text-wrap:balance; margin:0; line-height:1.1}
+.wrap{max-width:1240px; margin:0 auto; padding-left:max(16px, env(safe-area-inset-left, 0px)); padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.eyebrow{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.num{font-family:var(--f-mono); font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+/* ---------- hero ---------- */
+.hero{padding-block:40px 28px}
+.hero-top{display:flex; flex-wrap:wrap; gap:16px 40px; align-items:flex-end; justify-content:space-between}
+.hero h1{font-size:clamp(40px, 7vw, 76px); font-weight:800; letter-spacing:-.02em}
+.hero p.lede{max-width:56ch; margin:12px 0 0; font-size:17px; color:var(--muted)}
+.hero-stat{text-align:right; min-width:0}
+.hero-stat .big{font-family:var(--f-display); font-weight:700; font-size:clamp(34px,5vw,52px); line-height:1}
+.hero-stat .big small{font-size:.45em; font-weight:600; color:var(--muted)}
+.stripes-wrap{margin-top:28px; position:relative}
+.stripes{display:flex; height:110px; border-radius:6px; overflow:hidden}
+.stripes i{flex:1 1 0; display:block; transition:background-color .6s ease}
+.stripes-axis{position:relative; height:18px; margin-top:8px; font-family:var(--f-mono); font-size:12px; color:var(--muted)}
+.stripes-axis span{position:absolute; top:0; white-space:nowrap; transform:translateX(-50%)}
+.stripes-axis span:first-child{transform:none}
+.stripes-axis span:last-child{transform:translateX(-100%)}
+.today-mark{position:absolute; top:-6px; height:122px; width:2px; background:var(--ink); opacity:.85}
+.today-mark span{position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-family:var(--f-mono); font-size:11px; white-space:nowrap; color:var(--ink)}
+.stripes-note{font-size:12.5px; color:var(--muted); margin-top:6px}
+
+/* ---------- layout ---------- */
+.layout{display:grid; grid-template-columns:1fr; gap:28px; padding-block:12px 64px}
+@media (min-width:1180px){ .layout{grid-template-columns:370px minmax(0,1fr)} .controls{position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto} }
+
+/* ---------- controls ---------- */
+.controls{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px; display:flex; flex-direction:column; gap:18px; min-width:0}
+.controls h2{font-size:22px}
+.presets{display:flex; flex-wrap:wrap; gap:6px}
+.chip{font:inherit; font-size:13px; padding:6px 10px; border-radius:999px; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.group{border:0; margin:0; padding:14px 0 0; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:14px; min-width:0}
+.group legend{display:flex; align-items:center; gap:8px; font-family:var(--f-display); font-weight:700; font-size:16px; padding:0; float:left; width:100%; margin-bottom:2px}
+.group legend .t{margin-left:auto; font-family:var(--f-mono); font-weight:500; font-size:13px; color:var(--muted)}
+.dot{width:10px; height:10px; border-radius:3px; flex:none}
+.field{display:flex; flex-direction:column; gap:6px; clear:both}
+.field-head{display:flex; justify-content:space-between; gap:12px; font-size:13.5px}
+.field-head output{font-family:var(--f-mono); font-size:12.5px; color:var(--muted); text-align:right}
+.field .hint{font-size:12px; color:var(--muted); margin-top:-2px}
+input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:22px}
+.seg{display:flex; flex-wrap:wrap; gap:4px}
+.seg input{position:absolute; opacity:0; pointer-events:none}
+.seg label{font-size:12.5px; padding:5px 9px; border-radius:6px; border:1px solid var(--line); cursor:pointer; background:var(--surface)}
+.seg input:checked + label{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+.seg input:focus-visible + label{outline:2px solid var(--accent); outline-offset:2px}
+
+/* ---------- content ---------- */
+.content{display:flex; flex-direction:column; gap:28px; min-width:0}
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:22px; min-width:0}
+.panel > header{display:flex; flex-direction:column; gap:6px; margin-bottom:16px}
+.panel h2{font-size:clamp(22px,3vw,28px); font-weight:700}
+.panel header p{margin:0; color:var(--muted); max-width:68ch}
+.step{font-family:var(--f-mono); font-size:12px; color:var(--accent); letter-spacing:.06em; text-transform:uppercase}
+
+/* footprint */
+.fp-top{display:flex; flex-wrap:wrap; gap:12px 32px; align-items:baseline}
+.fp-big{font-family:var(--f-display); font-size:clamp(48px,8vw,72px); font-weight:800; line-height:.95; letter-spacing:-.02em}
+.fp-big small{font-size:.32em; font-weight:600; color:var(--muted); letter-spacing:0}
+.fp-verdict{font-size:15.5px; max-width:46ch}
+.fp-bar-wrap{position:relative; margin-top:34px}
+.fp-bar{display:flex; height:30px; border-radius:6px; overflow:hidden; background:var(--surface-2)}
+.fp-bar div{height:100%; transition:width .35s ease; min-width:0}
+.fp-marks{position:absolute; inset:-26px 0 0 0; pointer-events:none}
+.fp-mark{position:absolute; top:0; bottom:-4px; border-left:1.5px dashed var(--ink); opacity:.7}
+.fp-mark span{position:absolute; top:0; left:4px; font-size:11px; font-family:var(--f-mono); white-space:nowrap}
+.fp-mark.flip span{left:auto; right:4px}
+.fp-scale{display:flex; justify-content:space-between; font-family:var(--f-mono); font-size:11px; color:var(--muted); margin-top:4px}
+.legend{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px 16px; margin-top:18px}
+.legend button{all:unset; display:flex; gap:8px; align-items:flex-start; cursor:pointer; border-radius:6px; padding:4px}
+.legend button:focus-visible{outline:2px solid var(--accent)}
+.legend .lg-name{font-size:13.5px}
+.legend .lg-val{font-family:var(--f-mono); font-size:13px; color:var(--muted)}
+.legend .dot{margin-top:5px}
+
+/* sankey */
+.sankey-scroll{overflow-x:auto; margin-inline:-6px; padding-inline:6px}
+.sankey{width:100%; min-width:760px; height:auto; display:block}
+.sankey .band{transition:opacity .2s ease}
+.sankey.focus .band{opacity:.1}
+.sankey.focus .band.on{opacity:.92}
+.sankey .band{opacity:.72}
+.sankey .node rect.bar{fill:var(--ink)}
+.sankey .node rect.hit{fill:transparent}
+.sankey .node{cursor:pointer; outline:none}
+.sankey .node:focus-visible rect.bar, .sankey .node.sel rect.bar{fill:var(--accent)}
+.sankey .node:focus-visible rect.hit, .sankey .node.sel rect.hit{stroke:var(--accent); stroke-width:1.5; stroke-dasharray:3 3}
+.sankey text{font-family:var(--f-body); font-size:12.5px; fill:var(--ink); paint-order:stroke; stroke:var(--halo); stroke-width:4px; stroke-linejoin:round}
+.sankey text.sub{font-family:var(--f-mono); font-size:11px; fill:var(--muted)}
+.sankey text.colh{font-family:var(--f-mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; fill:var(--muted)}
+.sankey.focus .node:not(.on) text{opacity:.35}
+.info{margin-top:14px; border-top:1px solid var(--line); padding-top:14px; display:grid; gap:6px; min-height:96px}
+.info h3{font-size:19px}
+.info p{margin:0; max-width:72ch}
+.info .meta{font-family:var(--f-mono); font-size:12.5px; color:var(--muted)}
+.howto{font-size:13px; color:var(--muted)}
+
+/* warming */
+.warm-top{display:flex; flex-wrap:wrap; gap:8px 28px; align-items:baseline}
+.warm-big{font-family:var(--f-display); font-weight:800; font-size:clamp(52px,9vw,84px); line-height:.9; letter-spacing:-.02em; transition:color .4s}
+.warm-sub{max-width:48ch}
+.thermo{position:relative; margin-top:56px; margin-bottom:52px}
+.thermo-track{height:14px; border-radius:999px}
+.tmark{position:absolute; top:-8px; height:22px; border-left:1.5px solid var(--ink); opacity:.75}
+.tmark span{position:absolute; top:-18px; left:0; transform:translateX(-50%); font-family:var(--f-mono); font-size:11px; white-space:nowrap; color:var(--muted)}
+.tmark.up{top:-24px; height:38px}
+.tmark.up span{top:-18px}
+.tyou{position:absolute; top:-4px; transform:translateX(-50%); transition:left .4s ease}
+.tyou b{display:block; width:22px; height:22px; border-radius:50%; border:3px solid var(--surface); background:var(--ink); box-shadow:0 0 0 1.5px var(--ink)}
+.tyou span{position:absolute; top:28px; left:50%; transform:translateX(-50%); font-family:var(--f-mono); font-size:11.5px; font-weight:500; white-space:nowrap; background:var(--ink); color:var(--bg); padding:2px 6px; border-radius:4px}
+#effect{container-type:inline-size}
+.cards{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
+@container (min-width:760px){ .cards{grid-template-columns:repeat(4,minmax(0,1fr))} }
+.card{border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:6px; background:var(--bg); min-width:0}
+.card .v{font-family:var(--f-display); font-weight:700; font-size:28px; line-height:1}
+.card .l{font-size:13.5px}
+.card .s{font-size:12px; color:var(--muted)}
+.meter{position:relative; height:6px; border-radius:3px; background:var(--surface-2); margin-top:auto}
+.meter div{height:100%; border-radius:3px; transition:width .4s ease, background-color .4s}
+.meter i{position:absolute; top:-3px; height:12px; width:2px; background:var(--ink)}
+
+/* place */
+.places{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px}
+.place-list{display:grid; gap:12px; margin:0; padding:0; list-style:none}
+.place-list li{display:grid; grid-template-columns:28px 1fr; gap:10px; align-items:start}
+.place-list .k{font-family:var(--f-mono); font-size:12px; color:var(--muted); padding-top:2px}
+.place-list p{margin:0}
+
+/* swaps */
+.swaps{display:grid; gap:10px}
+.swap{display:grid; grid-template-columns:1fr auto; gap:6px 14px; align-items:center; border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:var(--bg)}
+.swap .what{font-weight:600; display:flex; gap:8px; align-items:center}
+.swap .save{font-family:var(--f-mono); font-size:12.5px; color:var(--muted); grid-column:1}
+.swap .bar{grid-column:1 / -1; height:4px; border-radius:2px; background:var(--good); opacity:.85}
+.swap button{grid-row:1 / span 2; grid-column:2; font:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:8px; border:1px solid var(--accent); background:transparent; color:var(--accent); cursor:pointer}
+.swap button:hover{background:var(--accent); color:var(--accent-ink)}
+.empty{color:var(--muted)}
+.collective{margin-top:16px; padding:14px; border-radius:10px; background:var(--surface-2); font-size:14px}
+
+/* sky scene */
+.scene-scroll{overflow-x:auto; border-radius:10px}
+.scene{width:100%; min-width:680px; display:block; border-radius:10px; background:#5a8a4a}
+.scene .flow, .scene .flow path{stroke-dasharray:10 9; animation:flow 1.1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-19}}
+.scene .sc-tag{font-family:var(--f-mono); font-size:10.5px; letter-spacing:.1em; fill:#ffffff; fill-opacity:.7}
+.scene .sc-lab{font-family:var(--f-body); font-size:13px; font-weight:600}
+.scene .sc-big{font-family:var(--f-display); font-size:26px; font-weight:800; fill:#fff}
+.scene .sc-names text{font-family:var(--f-body); font-size:13px; font-weight:600; fill:#fff; text-anchor:middle}
+.scene .sc-names text.v{font-family:var(--f-mono); font-size:12px; font-weight:500; fill:#e8f3e2}
+.scene .src{cursor:pointer; outline:none}
+.scene .src .glow{fill:#ffffff; opacity:0; transition:opacity .2s}
+.scene .src:hover .glow, .scene .src:focus-visible .glow{opacity:.28}
+.scene .src.sel .glow{opacity:.5}
+.scene .co text{font-family:var(--f-body); font-size:12.5px; font-weight:600; fill:#fff}
+.scene .co .n{font-family:var(--f-mono); font-size:11px; fill:#10212e}
+.scene-cap{margin-top:14px; display:grid; gap:8px}
+.scene-cap .row{display:flex; flex-wrap:wrap; gap:6px 16px; align-items:baseline}
+.scene-cap .ttl{font-family:var(--f-display); font-weight:700; font-size:17px}
+.gasbar{display:flex; height:26px; border-radius:6px; overflow:hidden; background:var(--surface-2)}
+.gasbar div{display:flex; align-items:center; padding-left:8px; color:#fff; font-family:var(--f-mono); font-size:11.5px; white-space:nowrap; overflow:hidden; transition:width .35s ease; min-width:0}
+.gas-key{display:flex; flex-wrap:wrap; gap:4px 14px; font-size:13px}
+.gas-key span{display:inline-flex; align-items:center; gap:6px}
+.gas-key i{width:10px; height:10px; border-radius:50%; display:inline-block}
+
+/* warming → impacts */
+#impacts{container-type:inline-size}
+.chainstrip{display:flex; flex-wrap:wrap; align-items:center; gap:6px 4px; margin-bottom:14px}
+.chainstrip .c{padding:7px 11px; border-radius:8px; background:var(--surface-2); font-size:13.5px; font-weight:600; display:flex; flex-direction:column; line-height:1.2}
+.chainstrip .c small{font-family:var(--f-mono); font-weight:500; font-size:11.5px; color:var(--muted)}
+.chainstrip .c.hot{color:#fff}
+.chainstrip .c.hot small{color:#fff; opacity:.85}
+.chainstrip i{font-style:normal; color:var(--muted); font-size:18px; padding-inline:2px}
+.yrbar{display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap}
+.yrbar input{flex:1 1 200px; min-width:0}
+.yrbar output{font-family:var(--f-mono); font-size:14px; font-weight:500; min-width:15ch}
+.playbtn{font:inherit; font-weight:600; font-size:14px; padding:8px 16px; border-radius:8px; border:0; background:var(--accent); color:var(--accent-ink); cursor:pointer}
+.ics{display:grid; grid-template-columns:1fr; gap:14px}
+@container (min-width:540px){ .ics{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@container (min-width:900px){ .ics{grid-template-columns:repeat(3,minmax(0,1fr))} }
+.ic{border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--bg); display:flex; flex-direction:column; min-width:0}
+.ic-art{display:block; width:100%; height:auto}
+.ic-body{padding:12px 14px 14px; display:flex; flex-direction:column; gap:8px; flex:1}
+.ic-body h3{font-size:17px}
+.ic-chain{display:flex; flex-wrap:wrap; align-items:center; gap:4px; font-size:12px}
+.ic-chain span{background:var(--surface-2); padding:2px 7px; border-radius:5px}
+.ic-chain i{font-style:normal; color:var(--muted)}
+.ic-stats{display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:auto}
+.ic-stats div{display:flex; flex-direction:column; min-width:0}
+.ic-stats b{font-family:var(--f-display); font-size:24px; line-height:1.1}
+.ic-stats small{font-size:11.5px; color:var(--muted); max-width:16ch}
+.ia-lab{font-family:var(--f-body); font-size:10.5px; font-weight:700}
+.ic-art .drop{animation:fall 0.9s linear infinite}
+@keyframes fall{from{transform:translateY(0); opacity:1} to{transform:translateY(62px); opacity:.1}}
+.ic-art .fish{animation:swim 3s ease-in-out infinite alternate}
+@keyframes swim{to{transform:translateX(14px)}}
+
+/* sources */
+.sources{font-size:13.5px; color:var(--muted)}
+.sources ul{padding-left:18px; margin:8px 0 0; display:grid; gap:4px}
+.sources p{max-width:75ch}
+
+@media (max-width:560px){
+  .hero-stat{text-align:left}
+  .panel{padding:16px}
+  .stripes{height:80px} .today-mark{height:92px}
+}
+@media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
+</style>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="eyebrow">How your daily life travels into the climate, and back to you</div>
+        <h1>Climate Ripple</h1>
+        <p class="lede">Your daily life → gases → a hotter planet → back to you.</p>
+      </div>
+      <div class="hero-stat">
+        <div class="eyebrow">If everyone lived like you</div>
+        <div class="big" id="heroT">+2.9°C <small>by 2100</small></div>
+      </div>
+    </div>
+    <div class="stripes-wrap" aria-label="Warming stripes from 1850 to 2100. Each stripe is one year, coloured from cool blue to dark red by temperature.">
+      <div class="stripes" id="stripes"></div>
+      <div class="today-mark" id="todayMark"><span>Today</span></div>
+      <div class="stripes-axis"><span style="left:0">1850</span><span style="left:39.8%">1950</span><span style="left:79.7%">2050</span><span style="left:100%" id="axisEnd">2100</span></div>
+      <div class="stripes-note">One stripe per year. Future stripes follow your lifestyle.</div>
+    </div>
+  </section>
+
+  <div class="layout">
+    <aside class="controls" aria-label="Your lifestyle">
+      <div>
+        <div class="eyebrow">Step 1</div>
+        <h2>Describe your life</h2>
+      </div>
+      <div>
+        <div class="howto" style="margin-bottom:8px">Pick a starting point, then adjust.</div>
+        <div class="presets" id="presets"></div>
+      </div>
+      <div id="groups"></div>
+    </aside>
+
+    <main class="content">
+      <section class="panel" id="sky">
+        <header>
+          <span class="step">Step 2 · Into the sky</span>
+          <h2>Watch your emissions rise</h2>
+          <p>Tap a source to follow its gases.</p>
+        </header>
+        <div class="scene-scroll">
+        <svg class="scene" id="scene" viewBox="0 0 960 520" role="img" aria-label="Animated scene: gases rise from your car, home, food, shopping and public services into the atmosphere, thicken a heat-trapping blanket, and heat bounces back to warm the land and ocean.">
+          <defs>
+            <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#060e1c"/><stop offset=".18" stop-color="#132c55"/><stop offset=".48" stop-color="#4c88c2"/><stop offset=".8" stop-color="#b8dcef"/>
+            </linearGradient>
+            <linearGradient id="seaG" x1="0" y1="0" x2="0" y2="1"><stop id="seaTop" offset="0" stop-color="#2b86c2"/><stop offset="1" stop-color="#0d3858"/></linearGradient>
+            <radialGradient id="sunG"><stop offset="0" stop-color="#fff6c4"/><stop offset=".6" stop-color="#ffd24a"/><stop offset="1" stop-color="#ffaa1c"/></radialGradient>
+          </defs>
+          <rect width="960" height="402" fill="url(#skyG)"/>
+          <text x="16" y="24" class="sc-tag">SPACE</text>
+          <text x="16" y="232" class="sc-tag">ATMOSPHERE</text>
+          <circle cx="70" cy="52" r="54" fill="#ffd24a" opacity=".16"/>
+          <circle cx="70" cy="52" r="30" fill="url(#sunG)"/>
+          <g stroke="#ffd24a" stroke-width="3" fill="none" class="flow" opacity=".85">
+            <path d="M96 70 L300 398"/><path d="M100 62 L470 398"/><path d="M102 54 L640 398"/>
+          </g>
+          <text x="110" y="30" class="sc-lab" fill="#ffd24a">Sunlight in</text>
+          <path id="blanket" fill="#8a7460" opacity=".3"/>
+          <text x="946" y="98" text-anchor="end" class="sc-tag">GREENHOUSE GAS BLANKET</text>
+          <g id="heatArrows" fill="none" stroke="#ff5a3c" stroke-width="3" stroke-linecap="round"></g>
+          <text x="352" y="30" class="sc-lab" fill="#ff8a70" id="escLab">Heat escaping to space</text>
+          <g id="blanketDots"></g>
+          <g id="plane" transform="translate(-80,240)">
+            <path d="M-26 0 q0 -5 8 -5 h34 q10 0 14 5 q-4 5 -14 5 h-34 q-8 0 -8 -5z" fill="#f4f7fa"/>
+            <path d="M-2 0 l-14 14 h7 l18 -14z M-2 0 l-12 -11 h6 l16 11z M-24 -1 l-6 -10 h5 l8 9z" fill="#c9d4de"/>
+          </g>
+          <rect y="400" width="720" height="120" fill="#5a8a4a"/>
+          <rect y="470" width="720" height="50" fill="#4b7740"/>
+          <rect id="heatTint" y="400" width="720" height="120" fill="#e0532c" opacity="0"/>
+          <path d="M720 400 q25 -8 50 0 t50 0 t50 0 t50 0 t50 0 V520 H720z" fill="url(#seaG)"/>
+          <text x="840" y="505" text-anchor="middle" class="sc-lab" fill="#fff" id="phLab">Ocean pH 8.10</text>
+
+          <g class="src" data-src="car" tabindex="0" role="button" aria-label="Driving">
+            <ellipse class="glow" cx="108" cy="380" rx="56" ry="36"/>
+            <path d="M76 396 v-14 q0 -7 7 -8 l12 -2 l11 -12 q3 -3 8 -3 h20 q5 0 8 3 l10 12 h4 q8 1 8 8 v16z" fill="#d94c3d"/>
+            <path d="M108 362 h18 l9 11 h-37z" fill="#d8edf8"/>
+            <circle cx="92" cy="396" r="7" fill="#1b232d"/><circle cx="130" cy="396" r="7" fill="#1b232d"/>
+          </g>
+          <g class="src" data-src="house" tabindex="0" role="button" aria-label="Home energy">
+            <ellipse class="glow" cx="250" cy="365" rx="52" ry="48"/>
+            <rect x="262" y="326" width="11" height="26" fill="#6b2c22"/>
+            <rect x="222" y="356" width="56" height="42" fill="#f1e3c8"/>
+            <polygon points="214,358 250,328 286,358" fill="#8c3b2e"/>
+            <rect x="244" y="374" width="12" height="24" fill="#6b4a2e"/>
+            <rect x="228" y="366" width="11" height="10" fill="#ffd66b"/><rect x="261" y="366" width="11" height="10" fill="#ffd66b"/>
+          </g>
+          <g class="src" data-src="farm" tabindex="0" role="button" aria-label="Food">
+            <ellipse class="glow" cx="392" cy="372" rx="58" ry="40"/>
+            <polygon points="344,398 344,362 364,346 384,362 384,398" fill="#b5332e"/>
+            <rect x="356" y="378" width="16" height="20" fill="#7d211d"/>
+            <ellipse cx="418" cy="384" rx="17" ry="10" fill="#fafafa"/>
+            <ellipse cx="413" cy="381" rx="5" ry="4" fill="#26221f"/><ellipse cx="424" cy="388" rx="4" ry="3" fill="#26221f"/>
+            <circle cx="437" cy="378" r="6.5" fill="#fafafa"/><circle cx="440" cy="380" r="2.5" fill="#f0a8a0"/>
+            <path d="M406 392 v8 M412 393 v7 M424 393 v7 M430 392 v8" stroke="#fafafa" stroke-width="3"/>
+          </g>
+          <g class="src" data-src="factory" tabindex="0" role="button" aria-label="Shopping">
+            <ellipse class="glow" cx="522" cy="365" rx="54" ry="46"/>
+            <rect x="538" y="318" width="10" height="42" fill="#5e6974"/><rect x="552" y="328" width="9" height="32" fill="#5e6974"/>
+            <path d="M488 398 v-38 l14 -12 v12 l14 -12 v12 l14 -12 v12 l28 0 v38z" fill="#8f9ba7"/>
+            <rect x="496" y="372" width="10" height="9" fill="#ffd66b"/><rect x="514" y="372" width="10" height="9" fill="#ffd66b"/><rect x="532" y="372" width="10" height="9" fill="#ffd66b"/>
+          </g>
+          <g class="src" data-src="city" tabindex="0" role="button" aria-label="Public services">
+            <ellipse class="glow" cx="648" cy="365" rx="50" ry="46"/>
+            <rect x="612" y="350" width="22" height="48" fill="#c4ced8"/>
+            <rect x="636" y="334" width="28" height="64" fill="#eef2f5"/>
+            <path d="M646 344 h8 v5 h5 v8 h-5 v5 h-8 v-5 h-5 v-8 h5z" fill="#d6453a"/>
+            <rect x="666" y="358" width="20" height="40" fill="#a9b5c1"/>
+          </g>
+          <g class="sc-names">
+            <text x="108" y="432">Driving</text><text x="108" y="449" class="v" id="sv-car"></text>
+            <text x="250" y="432">Home</text><text x="250" y="449" class="v" id="sv-house"></text>
+            <text x="392" y="432">Food</text><text x="392" y="449" class="v" id="sv-farm"></text>
+            <text x="522" y="432">Shopping</text><text x="522" y="449" class="v" id="sv-factory"></text>
+            <text x="648" y="432">Public services</text><text x="648" y="449" class="v" id="sv-city"></text>
+          </g>
+          <text x="30" y="275" class="sc-lab" fill="#fff" id="planeLab" text-anchor="start"></text>
+          <g id="particles"></g>
+          <g id="callouts"></g>
+          <g transform="translate(784,12)">
+            <rect width="164" height="58" rx="8" fill="#ffffff" fill-opacity=".1" stroke="#ffffff" stroke-opacity=".25"/>
+            <text x="12" y="19" class="sc-tag">IF ALL LIVED LIKE YOU</text>
+            <text x="12" y="47" class="sc-big" id="sceneT">+3.0°C</text>
+          </g>
+        </svg>
+        </div>
+        <div class="scene-cap" id="sceneCap"></div>
+      </section>
+
+      <section class="panel" id="impacts">
+        <header>
+          <span class="step">Step 3 · Warming → impacts</span>
+          <h2>How warming changes the planet</h2>
+          <p>Press play to fast-forward to 2100.</p>
+        </header>
+        <div class="chainstrip" id="chainstrip"></div>
+        <div class="yrbar">
+          <button class="playbtn" id="play" type="button" aria-label="Play from 2025 to 2100">▶ Play</button>
+          <input type="range" id="yr" min="2025" max="2100" step="1" value="2100" aria-label="Year">
+          <output id="yrOut" class="num" for="yr"></output>
+        </div>
+        <div class="ics">
+
+          <article class="ic">
+            <svg viewBox="0 0 320 180" class="ic-art" role="img" aria-label="Ice sheet on land shrinks, meltwater runs to the sea, and the sea rises over coastal houses.">
+              <defs><linearGradient id="aSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe0f2"/><stop offset="1" stop-color="#eef7fb"/></linearGradient></defs>
+              <rect width="320" height="180" fill="url(#aSky)"/>
+              <path d="M0 180 V108 H118 L150 126 L200 138 L216 180Z" fill="#8a7f70"/>
+              <path id="iceA" fill="#f7fcff" stroke="#b5d3e4" stroke-width="1.5"/>
+              <g id="dripsA" stroke="#4fa8e0" stroke-width="2.2" fill="none" class="flow" stroke-linecap="round">
+                <path d="M108 108 Q128 114 150 128"/><path d="M96 109 Q124 122 162 133"/><path d="M84 109 Q118 128 178 137"/>
+              </g>
+              <g>
+                <rect x="152" y="118" width="12" height="10" fill="#f1e3c8"/><polygon points="150,118 158,111 166,118" fill="#b5452f"/>
+                <rect x="170" y="123" width="12" height="10" fill="#f1e3c8"/><polygon points="168,123 176,116 184,123" fill="#b5452f"/>
+                <rect x="188" y="127" width="12" height="10" fill="#f1e3c8"/><polygon points="186,127 194,120 202,127" fill="#b5452f"/>
+              </g>
+              <rect id="seaA" x="146" width="174" fill="#2b86c2" fill-opacity=".88"/>
+              <polygon id="floeA" fill="#ffffff" stroke="#cfe6f2"/>
+              <text id="floeLab" class="ia-lab" fill="#ffffff" text-anchor="middle">Arctic summer ice</text>
+              <text x="8" y="16" class="ia-lab" fill="#1d3a52">Ice sheets &amp; glaciers</text>
+              <text x="232" y="170" class="ia-lab" fill="#ffffff" text-anchor="middle">⇠ warm water expands ⇢</text>
+              <line x1="312" y1="96" x2="312" y2="150" stroke="#1d3a52" stroke-width="1.5"/>
+              <line id="rulerA" x1="300" x2="316" stroke="#ffffff" stroke-width="2.5"/>
+              <text id="rulerLab" x="298" class="ia-lab" fill="#ffffff" text-anchor="end"></text>
+            </svg>
+            <div class="ic-body">
+              <h3>Ice melts, seas rise</h3>
+              <div class="ic-chain"><span>Warmer air &amp; sea</span><i>→</i><span>Ice melts, water expands</span><i>→</i><span>Seas rise</span></div>
+              <div class="ic-stats"><div><b id="kSea"></b><small>sea level</small></div><div><b id="kGlac"></b><small>glacier ice lost</small></div><div><b id="kArc"></b><small>ice-free Arctic Septembers</small></div></div>
+            </div>
+          </article>
+
+          <article class="ic">
+            <svg viewBox="0 0 320 180" class="ic-art" role="img" aria-label="A city under a hotter sun, with heat haze rising and a thermometer climbing.">
+              <rect id="bSky" width="320" height="180" fill="#f6c78a"/>
+              <circle id="bGlow" cx="262" cy="44" r="34" fill="#ffb020" opacity=".35"/>
+              <circle cx="262" cy="44" r="22" fill="#ffd24a"/>
+              <g id="hazeB" stroke="#ff5a3c" stroke-width="2" fill="none" class="flow" stroke-linecap="round"></g>
+              <path d="M40 180 V128 h22 v-18 h18 v18 h14 v-32 h24 v32 h12 v-14 h20 v-22 h22 v36 h14 v-24 h18 v24 h20 v-10 h24 v-20 h20 v30 h12 V180Z" fill="#2f3d4a"/>
+              <rect x="16" y="36" width="14" height="118" rx="7" fill="#ffffff" stroke="#2f3d4a" stroke-width="1.5"/>
+              <circle cx="23" cy="154" r="11" fill="#e0412c" stroke="#2f3d4a" stroke-width="1.5"/>
+              <rect id="bMerc" x="19.5" width="7" fill="#e0412c"/>
+              <text id="bTlab" x="36" class="ia-lab" fill="#2f3d4a"></text>
+            </svg>
+            <div class="ic-body">
+              <h3>Heat builds up</h3>
+              <div class="ic-chain"><span>More trapped heat</span><i>→</i><span>Hotter extremes</span><i>→</i><span>Heatstroke, power cuts</span></div>
+              <div class="ic-stats"><div><b id="kHeat"></b><small>extreme heatwaves vs 1900</small></div></div>
+            </div>
+          </article>
+
+          <article class="ic">
+            <svg viewBox="0 0 320 180" class="ic-art" role="img" aria-label="Left: heavy rain and a rising river. Right: sun, cracked ground and a wilting plant.">
+              <rect width="160" height="180" fill="#9fb3c4"/>
+              <rect x="160" width="160" height="180" fill="#f5d59c"/>
+              <g fill="#5d6b78"><circle cx="50" cy="40" r="20"/><circle cx="78" cy="32" r="24"/><circle cx="108" cy="42" r="18"/><rect x="40" y="40" width="80" height="20" rx="10"/></g>
+              <g id="dropsC" stroke="#2f6fb3" stroke-width="2" stroke-linecap="round"></g>
+              <rect id="riverC" x="0" width="160" fill="#3b8fd0"/>
+              <rect x="0" y="168" width="160" height="12" fill="#6b7d5a"/>
+              <circle cx="286" cy="36" r="18" fill="#ffc93c"/>
+              <rect x="160" y="138" width="160" height="42" fill="#c4935a"/>
+              <g id="cracksC" stroke="#7a5530" stroke-width="1.6" fill="none"></g>
+              <g id="plantC" stroke-linecap="round" fill="none" stroke-width="3">
+                <path d="M240 138 V100"/><path id="leafL" d="M240 116 Q226 108 220 98"/><path id="leafR" d="M240 108 Q254 100 260 90"/>
+              </g>
+              <line x1="160" y1="0" x2="160" y2="180" stroke="#ffffff" stroke-width="2"/>
+              <text x="8" y="84" class="ia-lab" fill="#1d2a36">Heavier downpours</text>
+              <text x="168" y="16" class="ia-lab" fill="#5b3a17">Faster drying</text>
+            </svg>
+            <div class="ic-body">
+              <h3>Rain and drought both intensify</h3>
+              <div class="ic-chain"><span>Warmer air holds 7% more water per °C</span><i>→</i><span>Floods here, droughts there</span></div>
+              <div class="ic-stats"><div><b id="kRain"></b><small>extreme downpours</small></div><div><b id="kDry"></b><small>farming droughts</small></div></div>
+            </div>
+          </article>
+
+          <article class="ic">
+            <svg viewBox="0 0 320 180" class="ic-art" role="img" aria-label="Underwater reef whose corals turn white and fish disappear as the sea warms.">
+              <defs><linearGradient id="dSea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a8fc4"/><stop offset="1" stop-color="#0d3c5e"/></linearGradient></defs>
+              <rect width="320" height="180" fill="url(#dSea)"/>
+              <path d="M0 8 q20 -6 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0" stroke="#bfe6f7" stroke-width="2" fill="none"/>
+              <g id="fishD"></g>
+              <path d="M0 160 Q60 150 120 158 T240 156 T320 160 V180 H0Z" fill="#e2cf9e"/>
+              <g id="coralD" fill="none" stroke-linecap="round" stroke-width="6"></g>
+              <text id="phD" x="312" y="26" class="ia-lab" fill="#ffffff" text-anchor="end"></text>
+            </svg>
+            <div class="ic-body">
+              <h3>Oceans heat and turn acidic</h3>
+              <div class="ic-chain"><span>Sea absorbs heat &amp; CO₂</span><i>→</i><span>Corals bleach</span><i>→</i><span>Fewer fish</span></div>
+              <div class="ic-stats"><div><b id="kCoral"></b><small>coral reefs lost</small></div><div><b id="kSpec"></b><small>land species at high risk</small></div></div>
+            </div>
+          </article>
+
+          <article class="ic">
+            <svg viewBox="0 0 320 180" class="ic-art" role="img" aria-label="A field of grain where stalks get shorter and more wither as it warms.">
+              <rect width="320" height="180" fill="#fbecc4"/>
+              <circle id="eSun" cx="40" cy="36" r="18" fill="#ffc93c"/>
+              <g id="wheatE" stroke-linecap="round"></g>
+              <rect y="150" width="320" height="30" fill="#8d6a43"/>
+            </svg>
+            <div class="ic-body">
+              <h3>Harvests shrink</h3>
+              <div class="ic-chain"><span>Heat &amp; drought</span><i>→</i><span>Smaller harvests</span><i>→</i><span>Higher food prices</span></div>
+              <div class="ic-stats"><div><b id="kMaize"></b><small>maize vs today</small></div><div><b id="kWheat"></b><small>wheat vs today</small></div></div>
+            </div>
+          </article>
+
+          <article class="ic">
+            <svg viewBox="0 0 320 180" class="ic-art" role="img" aria-label="Twenty people; the highlighted ones live where the climate becomes too hot for people to thrive.">
+              <rect width="320" height="180" fill="#e9eef2"/>
+              <g id="peopleF"></g>
+              <text id="peopleLab" x="160" y="168" class="ia-lab" fill="#2f3d4a" text-anchor="middle"></text>
+            </svg>
+            <div class="ic-body">
+              <h3>Some places become unliveable</h3>
+              <div class="ic-chain"><span>Heat, floods, failed crops</span><i>→</i><span>Homes become unliveable</span><i>→</i><span>People move</span></div>
+              <div class="ic-stats"><div><b id="kNiche"></b><small>of people outside a liveable climate</small></div></div>
+            </div>
+          </article>
+
+        </div>
+      </section>
+
+      <section class="panel" id="footprint">
+        <header>
+          <span class="step">Step 4 · Your total</span>
+          <h2>Your yearly carbon footprint</h2>
+        </header>
+        <div class="fp-top">
+          <div class="fp-big num" id="fpBig">8.7 <small>t CO₂e / year</small></div>
+          <div class="fp-verdict" id="fpVerdict"></div>
+        </div>
+        <div class="fp-bar-wrap">
+          <div class="fp-marks" id="fpMarks"></div>
+          <div class="fp-bar" id="fpBar"></div>
+          <div class="fp-scale" id="fpScale"></div>
+        </div>
+        <div class="legend" id="legend"></div>
+      </section>
+
+      <section class="panel" id="chain">
+        <header>
+          <span class="step">Step 5 · Chain reaction</span>
+          <h2>Follow your tonnes through the climate</h2>
+          <p>Tap any box to trace it.</p>
+        </header>
+        <div class="sankey-scroll"><svg class="sankey" id="sankey" viewBox="0 0 980 500" role="group" aria-label="Flow from your lifestyle to gases, climate changes and impacts on people"></svg></div>
+        <div class="info" id="info" aria-live="polite"></div>
+      </section>
+
+      <section class="panel" id="effect">
+        <header>
+          <span class="step">Step 6 · Effect</span>
+          <h2>The world your lifestyle would build</h2>
+          <p>If all 8.1 billion people lived like you until 2100.</p>
+        </header>
+        <div class="warm-top">
+          <div class="warm-big num" id="warmBig">+2.9°C</div>
+          <div class="warm-sub" id="warmSub"></div>
+        </div>
+        <div class="thermo" id="thermo">
+          <div class="thermo-track" id="thermoTrack"></div>
+        </div>
+        <div class="cards" id="cards"></div>
+      </section>
+
+      <section class="panel" id="home">
+        <header>
+          <span class="step">Step 7 · Back to you</span>
+          <h2>What it means where you live</h2>
+        </header>
+        <div class="places" id="places"></div>
+        <ul class="place-list" id="placeList"></ul>
+      </section>
+
+      <section class="panel" id="levers">
+        <header>
+          <span class="step">Step 8 · Change the cause</span>
+          <h2>Your biggest levers</h2>
+          <p>Tap Apply and watch everything change.</p>
+        </header>
+        <div class="swaps" id="swaps"></div>
+        <div class="collective" id="collective"></div>
+      </section>
+
+      <details class="panel sources">
+        <summary style="cursor:pointer; font-family:var(--f-display); font-weight:700; font-size:17px; color:var(--ink)">Method &amp; sources</summary>
+        <p>A teaching model: real research rounded into simple rules. Treat results as a sense of scale.</p>
+        <ul>
+          <li><b>Footprint:</b> car 0.17 kg CO₂e per km (petrol/diesel), 0.11 (hybrid), EVs at 0.18 kWh/km times your grid; public transport 0.06 kg per passenger-km; a short return flight 0.3 t and a long-haul return 1.8 t including contrail effects; grids at 0.75 / 0.40 / 0.05 kg per kWh. Based on <a href="https://www.gov.uk/government/collections/government-conversion-factors-for-company-reporting" target="_blank" rel="noopener">UK government conversion factors</a>.</li>
+          <li><b>Diets:</b> 2.6 t (high meat) to 1.1 t (vegan) a year, from <a href="https://doi.org/10.1007/s10584-014-1169-1" target="_blank" rel="noopener">Scarborough et al. 2014</a>.</li>
+          <li><b>Targets:</b> 2.5 t per person by 2030 to stay on a 1.5 °C path, from the <a href="https://hotorcool.org/1-5-degree-lifestyles-report/" target="_blank" rel="noopener">1.5-Degree Lifestyles report</a>. World average of about 7 t from 57 Gt total emissions in the <a href="https://www.unep.org/resources/emissions-gap-report-2024" target="_blank" rel="noopener">UNEP Emissions Gap Report 2024</a>.</li>
+          <li><b>Warming:</b> 1.3 °C today plus 0.2 °C for every tonne per person, held until 2100. This is calibrated so today's average (about 7 t) gives roughly 2.7 °C, in line with current-policy projections.</li>
+          <li><b>Impacts:</b> heat, rain and drought frequencies and sea level from the <a href="https://www.ipcc.ch/report/ar6/wg1/chapter/summary-for-policymakers/" target="_blank" rel="noopener">IPCC AR6 WGI</a>; species and coral risk from <a href="https://www.ipcc.ch/report/ar6/wg2/chapter/summary-for-policymakers/" target="_blank" rel="noopener">IPCC AR6 WGII</a>; crop yields from <a href="https://doi.org/10.1073/pnas.1701762114" target="_blank" rel="noopener">Zhao et al. 2017</a>; people outside the human climate niche from <a href="https://doi.org/10.1038/s41893-023-01132-6" target="_blank" rel="noopener">Lenton et al. 2023</a>. Values between published warming levels are interpolated.</li>
+          <li><b>Ice:</b> glacier mass loss by 2100 (26% at 1.5 °C to 41% at 4 °C) from <a href="https://doi.org/10.1126/science.abo1324" target="_blank" rel="noopener">Rounce et al. 2023</a>; ice-free Arctic Septembers from the IPCC (about once a century at 1.5 °C, once a decade at 2 °C). The year-by-year view eases warming and sea level from today to 2100; the drawings are not to scale.</li>
+          <li><b>Chain diagram:</b> the splits between gases and impacts are simplified shares for illustration. Real impacts depend on total warming, not on any one person's tonnes.</li>
+          <li>Warming stripes design by Ed Hawkins, <a href="https://showyourstripes.info" target="_blank" rel="noopener">showyourstripes.info</a>.</li>
+        </ul>
+      </details>
+    </main>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ===================== model ===================== */
+const CATS = [
+  {id:"travel", name:"Travel", color:"var(--c-travel)"},
+  {id:"home",   name:"Home energy", color:"var(--c-home)"},
+  {id:"food",   name:"Food", color:"var(--c-food)"},
+  {id:"stuff",  name:"Shopping", color:"var(--c-stuff)"},
+  {id:"shared", name:"Public services", color:"var(--c-shared)"}
+];
+const GRID = {coal:0.75, mixed:0.40, clean:0.05};
+const DIET_NAMES = ["Meat with most meals","Meat most days","Meat a few times a week","Fish, no meat","Vegetarian","Vegan"];
+const DIET_KG = [2620, 2050, 1700, 1420, 1390, 1060];
+const WASTE = {low:0.92, typical:1.0, high:1.15};
+const STUFF = {minimal:400, average:1000, lots:2200};
+const SERVICES = {lean:400, typical:1000, extensive:1800};
+const WORLD_AVG = 7.0, TARGET_2030 = 2.5, TARGET_2050 = 0.7, POP = 8.1;
+
+const PRESETS = {
+  us:    {label:"Average American", s:{carKm:320, carType:"petrol", transitKm:10, shortFlights:2, longFlights:0, household:2, elecKwh:900, grid:"mixed", heating:"gas", diet:0, waste:"high", clothes:60, gadgets:2, stuff:"lots", services:"extensive"}},
+  eu:    {label:"Average European", s:{carKm:180, carType:"petrol", transitKm:60, shortFlights:2, longFlights:0, household:2, elecKwh:300, grid:"mixed", heating:"gas", diet:1, waste:"typical", clothes:25, gadgets:1, stuff:"average", services:"typical"}},
+  in:    {label:"Average in India", s:{carKm:20, carType:"petrol", transitKm:80, shortFlights:0, longFlights:0, household:4, elecKwh:100, grid:"coal", heating:"none", diet:4, waste:"low", clothes:8, gadgets:0.5, stuff:"minimal", services:"lean"}},
+  low:   {label:"Low-carbon life", s:{carKm:0, carType:"ev", transitKm:120, shortFlights:0, longFlights:0, household:2, elecKwh:200, grid:"clean", heating:"heatpump", diet:5, waste:"low", clothes:5, gadgets:0.5, stuff:"minimal", services:"typical"}}
+};
+
+let state = Object.assign({place:"coastal"}, PRESETS.eu.s);
+let activePreset = "eu";
+
+function compute(s){
+  const g = GRID[s.grid];
+  const carF = s.carType === "ev" ? 0.18*g : s.carType === "hybrid" ? 0.11 : 0.17;
+  const car = s.carKm*52*carF, transit = s.transitKm*52*0.06;
+  const flights = s.shortFlights*300 + s.longFlights*1800;
+  const elec = s.elecKwh*12*g/s.household;
+  const heat = ({none:0, gas:2300, oil:3000, heatpump:3300*g})[s.heating]/s.household;
+  const food = DIET_KG[s.diet]*WASTE[s.waste];
+  const stuff = s.clothes*12 + s.gadgets*150 + STUFF[s.stuff];
+  const shared = SERVICES[s.services];
+  const c = {travel:(car+transit+flights)/1000, home:(elec+heat)/1000, food:food/1000, stuff:stuff/1000, shared:shared/1000};
+  c.total = c.travel + c.home + c.food + c.stuff + c.shared;
+  c.detail = {car:car/1000, transit:transit/1000, flights:flights/1000, elec:elec/1000, heat:heat/1000};
+  return c;
+}
+const warmingFor = f => Math.min(6, Math.max(1.3, 1.3 + 0.2*f));
+
+function interp(table, x){
+  if (x <= table[0][0]) { const [a,b] = table; return a[1] + (b[1]-a[1])*(x-a[0])/(b[0]-a[0]); }
+  for (let i=1;i<table.length;i++){
+    const a = table[i-1], b = table[i];
+    if (x <= b[0]) return a[1] + (b[1]-a[1])*(x-a[0])/(b[0]-a[0]);
+  }
+  const a = table[table.length-2], b = table[table.length-1];
+  return b[1] + (b[1]-a[1])*(x-b[0])/(b[0]-a[0]);
+}
+function metrics(T){
+  return {
+    T,
+    heat50: interp([[0,1],[1,4.8],[1.5,8.6],[2,13.9],[4,39.2]], T),
+    rain10: interp([[0,1],[1,1.3],[1.5,1.5],[2,1.7],[4,2.7]], T),
+    drought10: interp([[0,1],[1,1.7],[1.5,2.0],[2,2.4],[4,4.1]], T),
+    sea: interp([[1.3,0.36],[1.4,0.38],[1.8,0.44],[2.7,0.56],[3.6,0.68],[4.4,0.77]], T),
+    coral: Math.min(99.5, interp([[1.3,50],[1.5,80],[2,99],[3,99.5]], T)),
+    species: interp([[1.3,12],[1.5,14],[2,18],[3,29],[4,39],[5,48]], T),
+    maize: -7.4*(T-1.3),
+    wheat: -6.0*(T-1.3),
+    niche: Math.min(65, interp([[1.2,0.8],[1.5,5],[2.7,22],[3.6,33],[4.4,50]], T))
+  };
+}
+
+/* ===================== colour scale (warming stripes) ===================== */
+const STOPS = [[-0.4,[8,48,107]],[0,[33,113,181]],[0.35,[107,174,214]],[0.65,[222,235,247]],[0.9,[252,187,161]],[1.3,[251,106,74]],[2,[203,24,29]],[3,[103,0,13]],[4.5,[38,0,6]]];
+function stripeRGB(a){
+  if (a <= STOPS[0][0]) return STOPS[0][1];
+  for (let i=1;i<STOPS.length;i++){
+    if (a <= STOPS[i][0]){
+      const [x0,c0] = STOPS[i-1], [x1,c1] = STOPS[i], t = (a-x0)/(x1-x0);
+      return c0.map((v,j)=>Math.round(v+(c1[j]-v)*t));
+    }
+  }
+  return STOPS[STOPS.length-1][1];
+}
+const stripeColor = a => "rgb(" + stripeRGB(a).join(",") + ")";
+
+/* ===================== helpers ===================== */
+const $ = id => document.getElementById(id);
+const fmt = (n, d=1) => n.toFixed(d);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const SVGNS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs, parent){ const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+
+/* ===================== controls ===================== */
+const GROUPS = [
+  {cat:"travel", title:"Getting around", items:[
+    {key:"carKm", type:"range", label:"Driving", min:0, max:800, step:10, unit:v=>v+" km / week"},
+    {key:"carType", type:"seg", label:"Car type", options:[["petrol","Petrol / diesel"],["hybrid","Hybrid"],["ev","Electric"]]},
+    {key:"transitKm", type:"range", label:"Bus, train and metro", min:0, max:500, step:10, unit:v=>v+" km / week"},
+    {key:"shortFlights", type:"range", label:"Short flights (under 3 hours)", min:0, max:12, step:1, unit:v=>v+" return / year"},
+    {key:"longFlights", type:"range", label:"Long-haul flights", min:0, max:8, step:1, unit:v=>v+" return / year"}
+  ]},
+  {cat:"home", title:"Home energy", items:[
+    {key:"household", type:"range", label:"People in your home", min:1, max:6, step:1, unit:v=>v+(v==1?" person":" people"), hint:"Home energy is shared between everyone who lives there."},
+    {key:"elecKwh", type:"range", label:"Electricity use (whole home)", min:0, max:1500, step:25, unit:v=>v+" kWh / month", hint:"Check a bill. Air-conditioned homes often use 800+."},
+    {key:"grid", type:"seg", label:"Where your power comes from", options:[["coal","Mostly coal & gas"],["mixed","Mixed grid"],["clean","Renewable plan"]]},
+    {key:"heating", type:"seg", label:"Heating", options:[["none","None needed"],["gas","Gas boiler"],["oil","Oil boiler"],["heatpump","Heat pump"]]}
+  ]},
+  {cat:"food", title:"Food", items:[
+    {key:"diet", type:"range", label:"What you eat", min:0, max:5, step:1, unit:v=>DIET_NAMES[v]},
+    {key:"waste", type:"seg", label:"Food thrown away", options:[["low","Very little"],["typical","Some"],["high","A lot"]]}
+  ]},
+  {cat:"stuff", title:"Shopping", items:[
+    {key:"clothes", type:"range", label:"New clothes and shoes", min:0, max:100, step:1, unit:v=>v+" items / year"},
+    {key:"gadgets", type:"range", label:"New phones, laptops, TVs", min:0, max:5, step:0.5, unit:v=>v+" / year"},
+    {key:"stuff", type:"seg", label:"Everything else you buy", options:[["minimal","Buy little"],["average","Average"],["lots","Shop often"]]}
+  ]},
+  {cat:"shared", title:"Public services", items:[
+    {key:"services", type:"seg", label:"Roads, schools, hospitals where you live", options:[["lean","Lean"],["typical","Typical"],["extensive","Extensive"]], hint:"Your share of what your country builds and runs. It changes mostly through policy and voting."}
+  ]}
+];
+
+function buildControls(){
+  const pre = $("presets");
+  for (const [id,p] of Object.entries(PRESETS)){
+    const b = document.createElement("button");
+    b.className = "chip"; b.type = "button"; b.textContent = p.label; b.dataset.preset = id;
+    b.addEventListener("click", () => { Object.assign(state, PRESETS[id].s); activePreset = id; syncControls(); render(); });
+    pre.appendChild(b);
+  }
+  const root = $("groups");
+  root.style.display = "flex"; root.style.flexDirection = "column"; root.style.gap = "18px";
+  for (const g of GROUPS){
+    const cat = CATS.find(c=>c.id===g.cat);
+    const fs = document.createElement("fieldset"); fs.className = "group";
+    fs.innerHTML = `<legend><span class="dot" style="background:${cat.color}"></span>${esc(g.title)}<span class="t num" id="gt-${g.cat}"></span></legend>`;
+    for (const it of g.items){
+      const f = document.createElement("div"); f.className = "field";
+      if (it.type === "range"){
+        f.innerHTML = `<div class="field-head"><label for="in-${it.key}">${esc(it.label)}</label><output id="out-${it.key}" for="in-${it.key}"></output></div>
+          <input type="range" id="in-${it.key}" min="${it.min}" max="${it.max}" step="${it.step}">` + (it.hint?`<div class="hint">${esc(it.hint)}</div>`:"");
+        const inp = f.querySelector("input");
+        inp.addEventListener("input", () => { state[it.key] = Number(inp.value); activePreset = null; render(); });
+      } else {
+        const opts = it.options.map(([v,l]) => `<input type="radio" name="${it.key}" id="in-${it.key}-${v}" value="${v}"><label for="in-${it.key}-${v}">${esc(l)}</label>`).join("");
+        f.innerHTML = `<div class="field-head"><span id="lab-${it.key}">${esc(it.label)}</span></div><div class="seg" role="radiogroup" aria-labelledby="lab-${it.key}">${opts}</div>` + (it.hint?`<div class="hint">${esc(it.hint)}</div>`:"");
+        f.querySelectorAll("input").forEach(r => r.addEventListener("change", () => { state[it.key] = r.value; activePreset = null; render(); }));
+      }
+      fs.appendChild(f);
+    }
+    root.appendChild(fs);
+  }
+}
+function syncControls(){
+  for (const g of GROUPS) for (const it of g.items){
+    if (it.type === "range") $("in-"+it.key).value = state[it.key];
+    else { const r = $("in-"+it.key+"-"+state[it.key]); if (r) r.checked = true; }
+  }
+}
+function updateOutputs(fp){
+  for (const g of GROUPS){
+    for (const it of g.items) if (it.type==="range") $("out-"+it.key).textContent = it.unit(state[it.key]);
+    $("gt-"+g.cat).textContent = fmt(fp[g.cat]) + " t";
+  }
+  document.querySelectorAll("#presets .chip").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.preset === activePreset)));
+}
+
+/* ===================== footprint ===================== */
+function renderFootprint(fp){
+  $("fpBig").innerHTML = fmt(fp.total) + ' <small>t CO₂e / year</small>';
+  const r = fp.total / TARGET_2030;
+  const top = CATS.slice().sort((a,b)=>fp[b.id]-fp[a.id])[0];
+  const verdict = fp.total <= TARGET_2030
+    ? `<b>On track for 1.5 °C.</b>`
+    : `<b>${fmt(r)}×</b> the 1.5 °C budget.`;
+  const pill = `Biggest slice: <b>${top.name}</b> ${Math.round(fp[top.id]/fp.total*100)}%`;
+  $("fpVerdict").innerHTML = verdict + "<br>" + pill;
+
+  const max = Math.max(16, Math.ceil(fp.total/4)*4);
+  const bar = $("fpBar"); bar.innerHTML = "";
+  for (const c of CATS){
+    const d = document.createElement("div");
+    d.style.width = (fp[c.id]/max*100) + "%"; d.style.background = c.color;
+    d.title = `${c.name}: ${fmt(fp[c.id])} t`;
+    bar.appendChild(d);
+  }
+  const marks = [[TARGET_2030,"1.5 °C budget (2030)"],[WORLD_AVG,"World average"]];
+  $("fpMarks").innerHTML = marks.map(([v,l]) => `<div class="fp-mark${v/max>0.75?" flip":""}" style="left:${v/max*100}%"><span>${l} · ${v} t</span></div>`).join("");
+  let sc = ""; for (let v=0; v<=max; v+=max/4) sc += `<span>${v} t</span>`;
+  $("fpScale").innerHTML = sc;
+
+  const d = fp.detail;
+  const sub = {
+    travel:`car ${fmt(d.car)} · flights ${fmt(d.flights)} · transit ${fmt(d.transit)}`,
+    home:`power ${fmt(d.elec)} · heating ${fmt(d.heat)}`,
+    food:DIET_NAMES[state.diet].toLowerCase(),
+    stuff:"clothes, gadgets, goods",
+    shared:"not set by personal choice"
+  };
+  $("legend").innerHTML = CATS.map(c => `<button type="button" data-cat="${c.id}"><span class="dot" style="background:${c.color}"></span><span><span class="lg-name">${c.name}</span><br><span class="lg-val">${fmt(fp[c.id])} t · ${sub[c.id]}</span></span></button>`).join("");
+  $("legend").querySelectorAll("button").forEach(b => {
+    b.addEventListener("click", () => { selected = b.dataset.cat; renderSankey(lastFp); $("chain").scrollIntoView({behavior:"smooth", block:"start"}); });
+  });
+}
+
+/* ===================== sankey (cause → effect chain) ===================== */
+const NODES = {
+  travel:{col:0, name:"Travel"}, home:{col:0, name:"Home energy"}, food:{col:0, name:"Food"}, stuff:{col:0, name:"Shopping"}, shared:{col:0, name:"Public services"},
+  co2:{col:1, name:"Carbon dioxide"}, ch4:{col:1, name:"Methane"}, n2o:{col:1, name:"Nitrous oxide"}, land:{col:1, name:"Forest clearing"},
+  warming:{col:2, name:"Trapped heat"}, acid:{col:2, name:"Ocean acidification"}, forest:{col:2, name:"Lost forests & soils"},
+  heat:{col:3, name:"Heatwaves"}, flood:{col:3, name:"Downpours & floods"}, drought:{col:3, name:"Droughts & wildfires"}, sea:{col:3, name:"Rising seas"}, ocean:{col:3, name:"Dying reefs & fisheries"}, natureLoss:{col:3, name:"Species loss"},
+  health:{col:4, name:"Health"}, homes:{col:4, name:"Homes & money"}, displacement:{col:4, name:"Forced to move"}, foodwater:{col:4, name:"Food & water"}, livelihoods:{col:4, name:"Jobs & livelihoods"}
+};
+const COLS = [["travel","home","food","stuff","shared"],["co2","ch4","n2o","land"],["warming","acid","forest"],["heat","flood","drought","sea","ocean","natureLoss"],["health","homes","displacement","foodwater","livelihoods"]];
+const COL_HEAD = ["Your life","Gases released","What changes","Earth responds","How it reaches you"];
+const EXPLAIN = {
+  travel:"Burning petrol, diesel and jet fuel releases CO₂ directly. Planes also leave contrails and nitrogen oxides high in the sky, which roughly doubles a flight's warming effect; that's included here.",
+  home:"Electricity from coal and gas plants, plus fuel burned for heating. The same kilowatt-hour can be fifteen times cleaner on a renewable grid.",
+  food:"Cattle and sheep burp methane, fertilised fields release nitrous oxide, and pasture and feed crops drive forest clearing. Beef and lamb carry the biggest footprint per meal.",
+  stuff:"Making clothes, electronics and other goods uses factory energy, mining and long shipping chains, mostly abroad, so it rarely shows up on your own bills.",
+  shared:"Roads, schools, hospitals and other public services. Your share depends on where you live and changes mostly through policy, investment and voting.",
+  co2:"Carbon dioxide stays in the air for centuries. Each tonne adds to a stock that keeps heating the planet, which is why warming tracks the total we've ever emitted.",
+  ch4:"Methane traps about 80 times more heat than CO₂ over 20 years but breaks down in about a decade. Cutting it is the fastest way to slow warming in the near term.",
+  n2o:"Nitrous oxide comes mostly from fertiliser and manure. It is about 270 times stronger than CO₂ and lasts over a century.",
+  land:"Clearing forest for pasture, feed and materials releases the carbon stored in trees and soil, and removes a sink that would have soaked up more.",
+  warming:"Greenhouse gases thicken the blanket that holds heat in. More energy in the system means hotter extremes, more evaporation and faster melting ice.",
+  acid:"About a quarter of the CO₂ we emit dissolves into the sea and makes it more acidic. Shells and coral skeletons struggle to form.",
+  forest:"Fewer forests means less shade, less rain recycled inland, drier soils and lost habitat. It feeds back into warming as well.",
+  heat:"Heatwaves that used to arrive once in 50 years already happen about five times as often, and every tenth of a degree adds more.",
+  flood:"Warmer air holds about 7% more water per °C, so downpours get heavier and flash floods more common.",
+  drought:"Heat dries soils and plants faster, stretching fire seasons and stressing crops, rivers and reservoirs.",
+  sea:"Water expands as it warms and land ice melts. Seas keep rising for centuries after emissions stop, so today's choices are locked in for a long time.",
+  ocean:"Warmer, more acidic seas bleach corals and push fish toward the poles. Reefs shelter a quarter of marine species and feed hundreds of millions of people.",
+  natureLoss:"Plants and animals can't move or adapt as fast as the climate is changing. Losing pollinators, forests and wetlands weakens the systems that keep food and water reliable.",
+  health:"Heatstroke, worse air, wildfire smoke, and mosquito-borne diseases such as dengue spreading into new regions.",
+  homes:"Flood and storm damage, rising insurance premiums, higher cooling bills, and disrupted roads and power.",
+  displacement:"When places become too hot, too dry or flood again and again, people are forced to leave, often from communities that emitted the least.",
+  foodwater:"Smaller and less predictable harvests, pricier groceries, and stretched water supplies when rivers and reservoirs run low.",
+  livelihoods:"Farming, fishing, tourism and outdoor work all depend on a stable climate. Losses ripple through local economies."
+};
+function foodSplit(diet){
+  const t = diet/5, a = {co2:0.15, ch4:0.45, n2o:0.20, land:0.20}, b = {co2:0.50, ch4:0.10, n2o:0.25, land:0.15}, o = {};
+  for (const k in a) o[k] = a[k] + (b[k]-a[k])*t;
+  return o;
+}
+function splits(){
+  return {
+    travel:{co2:1}, home:{co2:0.95, ch4:0.05}, food:foodSplit(state.diet), stuff:{co2:0.85, ch4:0.05, land:0.10}, shared:{co2:0.9, ch4:0.1},
+    co2:{warming:0.75, acid:0.25}, ch4:{warming:1}, n2o:{warming:1}, land:{warming:0.5, forest:0.5},
+    warming:{heat:0.25, flood:0.2, drought:0.2, sea:0.2, ocean:0.1, natureLoss:0.05}, acid:{ocean:1}, forest:{drought:0.4, natureLoss:0.6},
+    heat:{health:0.55, displacement:0.1, foodwater:0.2, livelihoods:0.15}, flood:{health:0.2, homes:0.6, foodwater:0.2},
+    drought:{homes:0.15, displacement:0.15, foodwater:0.45, livelihoods:0.25}, sea:{homes:0.55, displacement:0.45},
+    ocean:{foodwater:0.4, livelihoods:0.6}, natureLoss:{health:0.2, foodwater:0.3, livelihoods:0.5}
+  };
+}
+
+let selected = null, hovered = null, lastFp = null;
+
+function flowGraph(fp){
+  const sp = splits(), comp = {}, links = [];
+  for (const id in NODES) comp[id] = {travel:0, home:0, food:0, stuff:0, shared:0};
+  for (const c of CATS) comp[c.id][c.id] = fp[c.id];
+  for (let col=0; col<4; col++){
+    for (const s of COLS[col]){
+      const sv = Object.values(comp[s]).reduce((a,b)=>a+b,0);
+      for (const t of COLS[col+1]){
+        const f = (sp[s]||{})[t]; if (!f) continue;
+        const parts = {}; let v = 0;
+        for (const o in comp[s]){ parts[o] = comp[s][o]*f; comp[t][o] += parts[o]; v += parts[o]; }
+        if (v > 1e-6) links.push({s, t, v, parts});
+      }
+    }
+  }
+  const value = {}; for (const id in comp) value[id] = Object.values(comp[id]).reduce((a,b)=>a+b,0);
+  return {links, value, comp};
+}
+function traceSet(id, links){
+  const up = new Set([id]), down = new Set([id]);
+  for (let i=0;i<5;i++) for (const l of links){ if (down.has(l.s)) down.add(l.t); if (up.has(l.t)) up.add(l.s); }
+  const nodes = new Set([...up, ...down]);
+  const onLinks = new Set(links.filter(l => (up.has(l.t) && up.has(l.s)) || (down.has(l.s) && down.has(l.t))));
+  return {nodes, onLinks};
+}
+
+function renderSankey(fp){
+  lastFp = fp;
+  const svg = $("sankey"); svg.innerHTML = "";
+  const W = 980, H = 500, top = 40, bottom = 10, nodeW = 12, pad = 18, left = 4, right = 170;
+  const {links, value, comp} = flowGraph(fp);
+  const k = (H - top - bottom - pad*5) / Math.max(16, fp.total);
+  const colX = i => left + i*((W - left - right - nodeW)/4);
+  const pos = {};
+  COLS.forEach((ids, ci) => {
+    const hs = ids.map(id => Math.max(2, value[id]*k));
+    const tot = hs.reduce((a,b)=>a+b,0) + pad*(ids.length-1);
+    let y = top + (H - top - bottom - tot)/2;
+    ids.forEach((id,i) => { pos[id] = {x:colX(ci), y, h:hs[i], out:0, in:0}; y += hs[i] + pad; });
+    svgEl("text", {x:colX(ci), y:16, class:"colh"}, svg).textContent = COL_HEAD[ci];
+  });
+
+  const focusId = hovered || selected;
+  const trace = focusId ? traceSet(focusId, links) : null;
+  const originFocus = focusId && NODES[focusId].col === 0 ? focusId : null;
+  if (trace) svg.classList.add("focus"); else svg.classList.remove("focus");
+
+  const gLinks = svgEl("g", {}, svg);
+  for (const l of links){
+    const a = pos[l.s], b = pos[l.t];
+    const x0 = a.x + nodeW, x1 = b.x, xm = (x0+x1)/2;
+    let y0 = a.y + a.out, y1 = b.y + b.in;
+    for (const c of CATS){
+      const h = l.parts[c.id]*k; if (h < 0.05) continue;
+      const p = `M${x0},${y0}C${xm},${y0} ${xm},${y1} ${x1},${y1}L${x1},${y1+h}C${xm},${y1+h} ${xm},${y0+h} ${x0},${y0+h}Z`;
+      let on = trace && trace.onLinks.has(l);
+      if (originFocus) on = c.id === originFocus;
+      svgEl("path", {d:p, class:"band"+(on?" on":""), style:`fill:${c.color}`}, gLinks);
+      y0 += h; y1 += h;
+    }
+    a.out += l.v*k; b.in += l.v*k;
+  }
+
+  const gNodes = svgEl("g", {}, svg);
+  for (const id in NODES){
+    const p = pos[id], n = NODES[id];
+    const onNode = trace ? (originFocus ? (comp[id][originFocus] > 1e-6 || id === originFocus) : trace.nodes.has(id)) : false;
+    const g = svgEl("g", {class:"node"+(onNode?" on":"")+(selected===id?" sel":""), tabindex:"0", role:"button", "aria-label":`${n.name}, ${fmt(value[id])} tonnes. Show details.`}, gNodes);
+    svgEl("rect", {class:"hit", x:p.x-4, y:p.y-4, width:nodeW+146, height:Math.max(p.h,22)+8, rx:4}, g);
+    const r = svgEl("rect", {class:"bar", x:p.x, y:p.y, width:nodeW, height:p.h, rx:2}, g);
+    if (n.col === 0) r.setAttribute("style", `fill:${CATS.find(c=>c.id===id).color}`);
+    const ty = p.y + p.h/2;
+    svgEl("text", {x:p.x+nodeW+6, y:ty-1}, g).textContent = n.name;
+    svgEl("text", {x:p.x+nodeW+6, y:ty+12, class:"sub"}, g).textContent = fmt(value[id]) + " t";
+    const pick = () => { selected = selected === id ? null : id; hovered = null; renderSankey(lastFp); };
+    g.addEventListener("click", pick);
+    g.addEventListener("keydown", e => { if (e.key==="Enter"||e.key===" "){ e.preventDefault(); pick(); }});
+    g.addEventListener("mouseenter", () => { if (hovered!==id){ hovered = id; renderSankey(lastFp); }});
+    g.addEventListener("mouseleave", () => { if (hovered===id){ hovered = null; renderSankey(lastFp); }});
+  }
+  renderInfo(focusId, value, comp, fp);
+}
+
+function renderInfo(id, value, comp, fp){
+  const box = $("info");
+  if (!id){
+    box.innerHTML = `<h3>Tap a box</h3><p>Left side: where your emissions go. Right side: which habits cause it.</p>`;
+    return;
+  }
+  const n = NODES[id];
+  const contrib = CATS.map(c => [c, comp[id][c.id]]).filter(x=>x[1]>1e-6).sort((a,b)=>b[1]-a[1]);
+  let meta = `${COL_HEAD[n.col]} · ${fmt(value[id])} t of your ${fmt(fp.total)} t a year flows here`;
+  let from = "";
+  if (n.col > 0 && contrib.length){
+    from = `<p class="meta">Mostly from: ${contrib.slice(0,3).map(([c,v]) => `${c.name.toLowerCase()} ${Math.round(v/value[id]*100)}%`).join(" · ")}</p>`;
+  }
+  box.innerHTML = `<div class="meta">${meta}</div><h3>${esc(n.name)}</h3><p>${EXPLAIN[id]}</p>${from}`;
+}
+
+/* ===================== warming & impacts ===================== */
+function renderWarming(fp){
+  const T = warmingFor(fp.total), m = metrics(T), m0 = metrics(1.3);
+  const col = stripeColor(T);
+  $("heroT").innerHTML = `+${fmt(T)}°C <small>by 2100</small>`;
+  $("warmBig").textContent = `+${fmt(T)}°C`;
+  $("warmBig").style.color = T < 1.75 ? "var(--good)" : T < 2.4 ? "var(--warn)" : "var(--bad)";
+  const world = fmt(fp.total*POP, 0);
+  const tag = T <= 1.55 ? "Paris goal met" : T <= 2.0 ? "Below 2 °C" : T <= 2.8 ? "Like today's path" : "Worse than today's path";
+  const sub = `<b>${tag}.</b><br><span class="num">${world} Gt CO₂e / yr</span> worldwide (today 57)`;
+  $("warmSub").innerHTML = sub;
+
+  // thermometer
+  const lo = 1.0, hi = 5.5, pct = v => (Math.min(hi,Math.max(lo,v))-lo)/(hi-lo)*100;
+  const g = []; for (let v=lo; v<=hi+1e-9; v+=0.25) g.push(`${stripeColor(v)} ${pct(v)}%`);
+  $("thermoTrack").style.background = `linear-gradient(90deg, ${g.join(",")})`;
+  const thermo = $("thermo");
+  thermo.querySelectorAll(".tmark,.tyou").forEach(e=>e.remove());
+  [[1.3,"Now 1.3°",false],[1.5,"Paris 1.5°",true],[2.0,"2°",false],[2.7,"Current policies 2.7°",true],[4,"4°",false],[5,"5°",false]].forEach(([v,l,up]) => {
+    const d = document.createElement("div"); d.className = "tmark" + (up?" up":""); d.style.left = pct(v)+"%"; d.innerHTML = `<span>${l}</span>`; thermo.appendChild(d);
+  });
+  const you = document.createElement("div"); you.className = "tyou"; you.style.left = pct(T)+"%";
+  you.innerHTML = `<span>You +${fmt(T)}°</span><b style="background:${col}"></b>`; thermo.appendChild(you);
+
+  const cards = [
+    {v:`${fmt(m.heat50)}×`, l:"Once-in-50-year heatwaves", s:`more often than before 1900 · today ≈ ${fmt(m0.heat50)}×`, x:m.heat50, x0:m0.heat50, max:45},
+    {v:`${fmt(m.rain10)}×`, l:"Extreme downpours", s:`once-in-10-year events · today ≈ ${fmt(m0.rain10)}×`, x:m.rain10, x0:m0.rain10, max:3.2},
+    {v:`${fmt(m.drought10)}×`, l:"Farming droughts", s:`in dry regions · today ≈ ${fmt(m0.drought10)}×`, x:m.drought10, x0:m0.drought10, max:5},
+    {v:`+${fmt(m.sea,2)} m`, l:"Sea level rise by 2100", s:"and still rising for centuries after", x:m.sea, x0:0.2, max:1},
+    {v:m.coral>=99?">99%":`${Math.round(m.coral)}%`, l:"Coral reefs lost", s:"since the 1950s · about half already gone", x:m.coral, x0:50, max:100},
+    {v:`up to ${Math.round(m.species)}%`, l:"Land species at very high extinction risk", s:`today ≈ ${Math.round(m0.species)}%`, x:m.species, x0:m0.species, max:55},
+    {v:`${m.maize<=0?"−":"+"}${Math.abs(Math.round(m.maize))}%`, l:"Maize harvests", s:`wheat ${Math.round(m.wheat)}% · vs today, before adaptation`, x:-m.maize, x0:0, max:35},
+    {v:`${Math.round(m.niche)}%`, l:"People living outside the climate humans thrive in", s:`≈ ${fmt(m.niche/100*9.5)} billion of ~9.5 billion by 2100`, x:m.niche, x0:m0.niche, max:65}
+  ];
+  $("cards").innerHTML = cards.map(c => {
+    const w = Math.max(0, Math.min(100, c.x/c.max*100)), t = Math.max(0, Math.min(100, c.x0/c.max*100));
+    return `<div class="card"><div class="v num">${c.v}</div><div class="l">${c.l}</div><div class="s">${c.s}</div><div class="meter" aria-hidden="true"><div style="width:${w}%;background:${col}"></div><i style="left:${t}%"></i></div></div>`;
+  }).join("");
+  return {T, m};
+}
+
+/* ===================== stripes ===================== */
+let stripeEls = [];
+function hash(y){ const s = Math.sin(y*12.9898)*43758.5453; return s - Math.floor(s); }
+function histAnomaly(y){
+  const pts = [[1850,0],[1880,-0.05],[1910,-0.12],[1940,0.22],[1970,0.25],[1980,0.42],[2000,0.75],[2010,0.95],[2024,1.3]];
+  const base = interp(pts, y);
+  return base + (hash(y)-0.5)*0.32;
+}
+function buildStripes(){
+  const box = $("stripes");
+  for (let y=1850; y<=2100; y++){ const i = document.createElement("i"); box.appendChild(i); stripeEls.push(i);
+    if (y <= 2024) i.style.backgroundColor = stripeColor(histAnomaly(y)); }
+  $("todayMark").style.left = ((2025-1850)/251*100) + "%";
+}
+function renderStripes(T){
+  for (let y=2025; y<=2100; y++){
+    const t = (y-2024)/76;
+    const a = 1.3 + (T-1.3)*Math.pow(t, 0.9) + (hash(y)-0.5)*0.28*(1-t*0.3);
+    stripeEls[y-1850].style.backgroundColor = stripeColor(a);
+  }
+  $("axisEnd").textContent = `2100 · +${fmt(T)}°C`;
+}
+
+/* ===================== place ===================== */
+const PLACES = [["coastal","Coastal city"],["hot","Hot inland city"],["farm","Farming region"],["tropics","Tropical island or coast"],["north","Cool northern region"]];
+function placeLines(p, m){
+  const T = m.T, tier = T < 1.8 ? 0 : T < 2.8 ? 1 : 2;
+  const pick = arr => arr[tier];
+  const L = {
+    coastal:[
+      ["Sea", `+${fmt(m.sea,2)} m by 2100. Once-a-century floods become yearly by 2050.`],
+      ["Money", pick(["Insurance costs rise in low streets.","Insurers pull out of low areas.","Sea walls or retreat for whole districts."])],
+      ["Heat", `Extreme heatwaves ${fmt(m.heat50)}× as often.`]
+    ],
+    hot:[
+      ["Heat", `Extreme heat ${fmt(m.heat50)}× as often. ` + pick(["More midday breaks outdoors.","45 °C days become routine.","Some days too hot to survive outside."])],
+      ["Water", `Droughts ${fmt(m.drought10)}× as often.`],
+      ["Power", pick(["More air-conditioning demand.","Heatwave blackouts become a health risk.","Cooling becomes a survival need."])]
+    ],
+    farm:[
+      ["Crops", `Maize −${Math.abs(Math.round(m.maize))}%, wheat −${Math.abs(Math.round(m.wheat))}% vs today.`],
+      ["Water", `Droughts ${fmt(m.drought10)}×, downpours ${fmt(m.rain10)}× as often.`],
+      ["Living", pick(["New seeds and planting dates keep farms going.","New pests; small farms struggle.","Signature crops can no longer grow here."])]
+    ],
+    tropics:[
+      ["Reefs", (m.coral>=99?">99%":`${Math.round(m.coral)}%`) + " of coral reefs lost, with their fish and storm protection."],
+      ["Storms", pick(["Wetter cyclones, higher surges.","More cyclones hit top categories.","Some low islands become unliveable."])],
+      ["Health", pick(["Longer dengue season.","Dengue spreads to new areas.","Outdoor work often unsafe."])]
+    ],
+    north:[
+      ["Rain", `Extreme downpours ${fmt(m.rain10)}× as often.`],
+      ["Fire", pick(["More smoke days.","Fire season weeks longer.","Huge forest fires most years."])],
+      ["Change", pick(["Ticks spread north.","Thawing ground cracks roads.","Ice-free Arctic summers."])]
+    ]
+  };
+  return L[p];
+}
+function buildPlaces(){
+  const box = $("places");
+  for (const [id,l] of PLACES){
+    const b = document.createElement("button"); b.className = "chip"; b.type = "button"; b.textContent = l; b.dataset.place = id;
+    b.addEventListener("click", () => { state.place = id; render(); });
+    box.appendChild(b);
+  }
+}
+function renderPlace(m){
+  document.querySelectorAll("#places .chip").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.place === state.place)));
+  $("placeList").innerHTML = placeLines(state.place, m).map(([k,t]) => `<li><span class="k">${k}</span><p>${t}</p></li>`).join("");
+}
+
+/* ===================== levers ===================== */
+const SWAPS = [
+  {id:"long", cat:"travel", label:"Skip one long-haul return flight", ok:s=>s.longFlights>0, apply:s=>{s.longFlights-=1}},
+  {id:"short", cat:"travel", label:"Take the train instead of one short flight", ok:s=>s.shortFlights>0, apply:s=>{s.shortFlights-=1; s.transitKm=Math.min(500, s.transitKm+20)}},
+  {id:"ev", cat:"travel", label:"Switch to an electric car", ok:s=>s.carKm>0 && s.carType!=="ev", apply:s=>{s.carType="ev"}},
+  {id:"drive", cat:"travel", label:"Drive half as much: walk, cycle or take transit", ok:s=>s.carKm>=40, apply:s=>{const c=Math.round(s.carKm/20)*10; s.carKm-=c; s.transitKm=Math.min(500, s.transitKm+Math.round(c/20)*10)}},
+  {id:"grid", cat:"home", label:"Move to a renewable electricity plan", ok:s=>s.grid!=="clean", apply:s=>{s.grid="clean"}},
+  {id:"hp", cat:"home", label:"Replace your boiler with a heat pump", ok:s=>s.heating==="gas"||s.heating==="oil", apply:s=>{s.heating="heatpump"}},
+  {id:"lessmeat", cat:"food", label:"Eat meat a few times a week, not daily", ok:s=>s.diet<2, apply:s=>{s.diet=2}},
+  {id:"veg", cat:"food", label:"Go vegetarian", ok:s=>s.diet<4, apply:s=>{s.diet=4}},
+  {id:"vegan", cat:"food", label:"Go vegan", ok:s=>s.diet===4, apply:s=>{s.diet=5}},
+  {id:"waste", cat:"food", label:"Plan meals to cut food waste", ok:s=>s.waste!=="low", apply:s=>{s.waste="low"}},
+  {id:"clothes", cat:"stuff", label:"Buy half as many new clothes", ok:s=>s.clothes>=6, apply:s=>{s.clothes=Math.round(s.clothes/2)}},
+  {id:"gadgets", cat:"stuff", label:"Keep phones and laptops twice as long", ok:s=>s.gadgets>=1, apply:s=>{s.gadgets=Math.round(s.gadgets)/2}},
+  {id:"stuff", cat:"stuff", label:"Buy less, repair and borrow more", ok:s=>s.stuff!=="minimal", apply:s=>{s.stuff = s.stuff==="lots"?"average":"minimal"}}
+];
+function renderSwaps(fp){
+  const opts = SWAPS.filter(w => w.ok(state)).map(w => { const s2 = Object.assign({}, state); w.apply(s2); return {w, save: fp.total - compute(s2).total}; })
+    .filter(o => o.save > 0.02).sort((a,b)=>b.save-a.save);
+  // drop "go vegetarian" if "less meat" is shown and bigger choice exists — keep both, they're alternatives; show top 5
+  const top = opts.slice(0,5), maxSave = top.length ? top[0].save : 1;
+  const box = $("swaps");
+  if (!top.length){ box.innerHTML = `<p class="empty">You've already made the big personal changes this model covers. What's left sits in shared systems.</p>`; }
+  else box.innerHTML = top.map(o => {
+    const cat = CATS.find(c=>c.id===o.w.cat);
+    return `<div class="swap"><div class="what"><span class="dot" style="background:${cat.color}"></span>${o.w.label}</div>
+      <div class="save">−${fmt(o.save)} t a year · −${fmt(o.save*0.2,2)} °C if everyone did it</div>
+      <button type="button" data-swap="${o.w.id}">Apply</button>
+      <div class="bar" style="width:${o.save/maxSave*100}%"></div></div>`;
+  }).join("");
+  box.querySelectorAll("button[data-swap]").forEach(b => b.addEventListener("click", () => {
+    SWAPS.find(w=>w.id===b.dataset.swap).apply(state); activePreset = null; syncControls(); render();
+  }));
+  const floor = fp.shared + fp.stuff*0.3 + fp.food*0.5;
+  $("collective").innerHTML = `<b>About ${fmt(Math.min(fp.total, floor))} t is out of your hands alone.</b> Grids, farms, factories and public services change through policy and votes.`;
+}
+
+/* ===================== sky scene ===================== */
+const GAS = {co2:{name:"Carbon dioxide", short:"CO₂", color:"#2b3340", r:3.2}, ch4:{name:"Methane", short:"Methane", color:"#f08a24", r:3.8}, n2o:{name:"Nitrous oxide", short:"N₂O", color:"#a46bf0", r:3.8}};
+const SRC = [
+  {id:"car",     cat:"travel", name:"Driving",         ex:72,  ey:390},
+  {id:"plane",   cat:"travel", name:"Flights",         ex:0,   ey:240},
+  {id:"house",   cat:"home",   name:"Home energy",     ex:267, ey:324},
+  {id:"farm",    cat:"food",   name:"Food",            ex:420, ey:372},
+  {id:"factory", cat:"stuff",  name:"Shopping",        ex:543, ey:316},
+  {id:"city",    cat:"shared", name:"Public services", ex:650, ey:330}
+];
+const sc = {vals:{}, mix:{}, parts:[], dots:[], target:20, focus:null, planeX:-80, oceanAcc:0, co2share:0.7, last:0, visible:true, T:1.3, total:0};
+const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function gasMix(cat){
+  const sp = splits()[cat], m = {co2:(sp.co2||0)+(sp.land||0), ch4:sp.ch4||0, n2o:sp.n2o||0};
+  return m;
+}
+function wavePts(x, y0, y1, amp, ph){
+  let d = ""; const n = Math.ceil(Math.abs(y1-y0)/6), dir = Math.sign(y1-y0);
+  for (let i=0;i<=n;i++){ const y = y0 + dir*i*6; d += (i?"L":"M") + (x + Math.sin(i*0.55+ph)*amp).toFixed(1) + " " + y.toFixed(1); }
+  return d;
+}
+function buildScene(){
+  // blanket band
+  let top = "", bot = "";
+  for (let x=0; x<=960; x+=20){ top += (x?"L":"M") + x + " " + (108+Math.sin(x*0.02)*6).toFixed(1); }
+  for (let x=960; x>=0; x-=20){ bot += "L" + x + " " + (174+Math.sin(x*0.025+1)*6).toFixed(1); }
+  $("blanket").setAttribute("d", top + bot + "Z");
+  // heat arrows: escaping and bounced back
+  const g = $("heatArrows");
+  [190, 335, 470, 600].forEach((x,i) => {
+    svgEl("path", {d:wavePts(x, 396, 40, 5, i), class:"flow esc"}, g);
+    svgEl("path", {d:wavePts(x+14, 396, 182, 5, i+1) + ` Q${x+34} 150 ${x+54} 182 ` + wavePts(x+54, 182, 396, 5, i).replace(/^M/,"L"), class:"flow back"}, g);
+  });
+  // numbered callouts
+  const co = $("callouts");
+  const callout = (n, x, y, text, anchorRight) => {
+    const w = text.length*6.9 + 34, gx = anchorRight ? x - w : x;
+    const gg = svgEl("g", {class:"co", transform:`translate(${gx},${y})`}, co);
+    svgEl("rect", {width:w, height:24, rx:12, fill:"#0a1422", "fill-opacity":".78"}, gg);
+    svgEl("circle", {cx:12, cy:12, r:8.5, fill:"#ffffff"}, gg);
+    svgEl("text", {x:12, y:16, "text-anchor":"middle", class:"n"}, gg).textContent = n;
+    svgEl("text", {x:26, y:16.5}, gg).textContent = text;
+  };
+  callout("1", 14, 300, "Your day releases gases");
+  callout("2", 14, 248, "Gases rise into the air");
+  callout("3", 14, 128, "They thicken a blanket that traps heat");
+  callout("4", 946, 252, "Heat bounces back: land and sea warm", true);
+  callout("5", 946, 422, "Ocean soaks up CO₂, turns acidic", true);
+  // source interaction
+  document.querySelectorAll("#scene .src").forEach(el => {
+    const pick = () => { sc.focus = sc.focus === el.dataset.src ? null : el.dataset.src; sceneFocus(); };
+    el.addEventListener("click", pick);
+    el.addEventListener("keydown", e => { if (e.key==="Enter"||e.key===" "){ e.preventDefault(); pick(); }});
+  });
+  $("plane").style.cursor = "pointer";
+  $("plane").addEventListener("click", () => { sc.focus = sc.focus === "plane" ? null : "plane"; sceneFocus(); });
+  if ("IntersectionObserver" in window){
+    new IntersectionObserver(es => { sc.visible = es[0].isIntersecting; }).observe($("scene"));
+  }
+}
+function sceneUpdate(fp, T){
+  const d = fp.detail;
+  sc.vals = {car:d.car+d.transit, plane:d.flights, house:fp.home, farm:fp.food, factory:fp.stuff, city:fp.shared};
+  for (const s of SRC) sc.mix[s.id] = gasMix(s.cat);
+  sc.total = fp.total; sc.T = T;
+  sc.target = Math.round(Math.min(170, Math.max(6, fp.total*9)));
+  const dens = Math.min(1, Math.max(0.05, fp.total/16));
+  $("blanket").setAttribute("opacity", (0.08 + dens*0.5).toFixed(2));
+  document.querySelectorAll("#heatArrows .esc").forEach(p => p.setAttribute("opacity", Math.max(0.15, 1 - dens*1.1).toFixed(2)));
+  document.querySelectorAll("#heatArrows .back").forEach(p => p.setAttribute("opacity", Math.min(1, 0.15 + dens*1.2).toFixed(2)));
+  $("escLab").setAttribute("opacity", Math.max(0.35, 1 - dens).toFixed(2));
+  $("heatTint").setAttribute("opacity", Math.min(0.5, Math.max(0, (T-1.3)/4.5*0.6)).toFixed(2));
+  const ph = 8.1 - 0.13*(T-1.3);
+  $("phLab").textContent = `Ocean pH ${ph.toFixed(2)} (now 8.10)`;
+  $("seaTop").setAttribute("stop-color", `rgb(${Math.round(43+(T-1.3)*14)},${Math.round(134-(T-1.3)*6)},${Math.round(194-(T-1.3)*22)})`);
+  $("sceneT").textContent = `+${fmt(T)}°C`;
+  $("sceneT").setAttribute("fill", stripeColor(Math.max(1.6, T)) );
+  if (T < 1.8) $("sceneT").setAttribute("fill", "#ffffff");
+  for (const s of SRC) if (s.id !== "plane") $("sv-"+s.id).textContent = fmt(sc.vals[s.id]) + " t";
+  $("plane").setAttribute("display", sc.vals.plane > 0 ? "inline" : "none");
+  if (sc.focus === "plane" && sc.vals.plane <= 0) sc.focus = null;
+  const co2 = Object.keys(sc.vals).reduce((a,k)=>a + sc.vals[k]*sc.mix[k].co2, 0);
+  sc.co2share = fp.total ? co2/fp.total : 0.7;
+  if (!sc.started){ sc.started = true; for (let i=0;i<220;i++) sceneStep(0.05); sceneDraw(); if (!reduceMotion) requestAnimationFrame(sceneLoop); }
+  else if (reduceMotion){ for (let i=0;i<60;i++) sceneStep(0.05); sceneDraw(); }
+  sceneFocus();
+}
+function spawn(src, gas, x, y){
+  sc.parts.push({x, y, gas, src, kind:"rise", vy:-(34+Math.random()*26), ph:Math.random()*6, age:0, top:110+Math.random()*60});
+}
+function sceneStep(dt){
+  // emissions
+  sc.planeX += dt*95; if (sc.planeX > 1040) sc.planeX = -60;
+  for (const s of SRC){
+    const v = sc.vals[s.id] || 0; if (v <= 0) continue;
+    if (s.id === "plane" && (sc.planeX < 0 || sc.planeX > 960)) continue;
+    s.acc = (s.acc||0) + v*1.6*dt;
+    while (s.acc >= 1){
+      s.acc -= 1;
+      const m = sc.mix[s.id], r = Math.random();
+      const gas = r < m.co2 ? "co2" : r < m.co2 + m.ch4 ? "ch4" : "n2o";
+      const x = s.id === "plane" ? sc.planeX - 28 : s.ex + (Math.random()-0.5)*8;
+      spawn(s.id, gas, x, s.id === "plane" ? 240 : s.ey);
+    }
+  }
+  // ocean uptake: CO2 leaves the blanket and sinks into the sea
+  sc.oceanAcc += sc.total*sc.co2share*0.25*dt;
+  while (sc.oceanAcc >= 1){ sc.oceanAcc -= 1;
+    sc.parts.push({x:740+Math.random()*200, y:178, gas:"co2", src:null, kind:"sink", vy:40+Math.random()*15, ph:Math.random()*6, age:0}); }
+  // move
+  const keep = [];
+  for (const p of sc.parts){
+    p.age += dt; p.y += p.vy*dt; p.x += Math.sin(p.age*2+p.ph)*14*dt;
+    let gone = false;
+    if (p.kind === "rise" && p.y <= p.top){
+      gone = true;
+      if (sc.dots.length < sc.target) sc.dots.push({x:p.x, y:p.y, gas:p.gas, src:p.src, vx:(Math.random()-0.5)*16, ph:Math.random()*6, el:null});
+    } else if (p.kind === "sink" && p.y > 470) gone = true;
+    if (gone){ if (p.el) p.el.remove(); } else keep.push(p);
+  }
+  sc.parts = keep;
+  // blanket molecules drift; extras fade away when the footprint shrinks
+  if (sc.dots.length > sc.target){ const d = sc.dots.shift(); if (d.el) d.el.remove(); }
+  for (const d of sc.dots){ d.x += d.vx*dt; if (d.x < 0) d.x += 960; if (d.x > 960) d.x -= 960; d.ph += dt; }
+}
+function partOpacity(src){ return !sc.focus ? 0.95 : src === sc.focus ? 1 : 0.12; }
+function sceneDraw(){
+  const gp = $("particles"), gd = $("blanketDots");
+  for (const p of sc.parts){
+    if (!p.el){ p.el = svgEl("circle", {r:GAS[p.gas].r, fill:GAS[p.gas].color, stroke:"#ffffff", "stroke-width":"0.8", "stroke-opacity":".6"}, gp); }
+    p.el.setAttribute("cx", p.x.toFixed(1)); p.el.setAttribute("cy", p.y.toFixed(1));
+    p.el.setAttribute("opacity", p.kind === "sink" ? (sc.focus ? 0.12 : 0.8) : partOpacity(p.src));
+  }
+  for (const d of sc.dots){
+    if (!d.el){ d.el = svgEl("circle", {r:GAS[d.gas].r, fill:GAS[d.gas].color, stroke:"#ffffff", "stroke-width":"0.8", "stroke-opacity":".5"}, gd); }
+    d.el.setAttribute("cx", d.x.toFixed(1)); d.el.setAttribute("cy", (d.y + Math.sin(d.ph)*3).toFixed(1));
+    d.el.setAttribute("opacity", partOpacity(d.src));
+  }
+  $("plane").setAttribute("transform", `translate(${sc.planeX.toFixed(1)},240)`);
+}
+function sceneLoop(t){
+  const dt = Math.min(0.05, sc.last ? (t - sc.last)/1000 : 0.016); sc.last = t;
+  if (sc.visible && !document.hidden){ sceneStep(dt); sceneDraw(); }
+  requestAnimationFrame(sceneLoop);
+}
+function sceneFocus(){
+  document.querySelectorAll("#scene .src").forEach(el => el.classList.toggle("sel", el.dataset.src === sc.focus));
+  if (reduceMotion) sceneDraw();
+  // gas bar for the focused source, or for everything
+  const ids = sc.focus ? [sc.focus] : Object.keys(sc.vals);
+  const g = {co2:0, ch4:0, n2o:0};
+  for (const id of ids) for (const k in g) g[k] += (sc.vals[id]||0) * sc.mix[id][k];
+  const tot = g.co2 + g.ch4 + g.n2o || 1;
+  const name = sc.focus ? SRC.find(s=>s.id===sc.focus).name : "All your gases";
+  const bar = Object.keys(g).filter(k=>g[k]>0.005).map(k => `<div style="width:${g[k]/tot*100}%;background:${GAS[k].color}" title="${GAS[k].name}: ${fmt(g[k])} t">${g[k]/tot>0.12?fmt(g[k])+" t":""}</div>`).join("");
+  $("sceneCap").innerHTML = `<div class="row"><span class="ttl">${name}</span><span class="num" style="color:var(--muted)">${fmt(tot)} t a year</span>${sc.focus?'<button class="chip" type="button" id="sceneAll">Show all</button>':""}</div>
+    <div class="gasbar">${bar}</div>
+    <div class="gas-key">${Object.keys(GAS).map(k=>`<span><i style="background:${GAS[k].color}"></i>${GAS[k].name}</span>`).join("")}</div>`;
+  const all = $("sceneAll"); if (all) all.addEventListener("click", () => { sc.focus = null; sceneFocus(); });
+}
+
+/* ===================== warming → impacts (illustrated, year by year) ===================== */
+const imp = {year:2100, playing:false, fp:null};
+const glacierLoss = T => Math.min(55, interp([[1.3,24],[1.5,26],[4,41],[5,46]], T));
+function yearState(year, total){
+  const Tu = warmingFor(total), p = Math.max(0, (year-2024)/76);
+  const T = 1.3 + (Tu-1.3)*Math.pow(p, 0.9);
+  const m = metrics(T);
+  const prog = Math.pow(Math.max(0,(year-2020)/80), 1.5);
+  m.seaY = 0.07 + (metrics(Tu).sea - 0.07)*prog;     // sea level vs 1995–2014, cumulative
+  m.glac = glacierLoss(Tu)*Math.max(0,(year-2015)/85); // % of 2015 glacier mass lost, cumulative
+  m.year = year;
+  return m;
+}
+function arcticLabel(T){ return T < 1.6 ? "rare" : T < 2.2 ? "1 in 10" : T < 3 ? "most years" : "nearly all"; }
+function buildImpacts(){
+  // heat haze
+  const hz = $("hazeB");
+  for (let i=0;i<10;i++){ const x = 50 + i*24; svgEl("path", {d:wavePts(x, 120, 70, 3, i), "data-i":i}, hz); }
+  // rain drops
+  const dr = $("dropsC");
+  for (let i=0;i<34;i++){ const x = 34 + ((i*37)%96) + (i%3)*4, y = 58 + (i*13)%22;
+    svgEl("line", {x1:x, y1:y, x2:x-3, y2:y+9, class:"drop", style:`animation-delay:${-(i*0.137)%0.9}s`, "data-i":i}, dr); }
+  // cracks
+  const cr = $("cracksC");
+  for (let i=0;i<9;i++){ const x = 168 + i*17; svgEl("path", {d:`M${x} 144 l6 8 l-4 7 l7 9 l-3 8 M${x+6} 152 l8 2`, "data-i":i}, cr); }
+  // corals
+  const co = $("coralD"), cx = [24, 66, 104, 146, 190, 232, 280];
+  cx.forEach((x,i) => { const h = 28 + (i%3)*8;
+    svgEl("path", {d:`M${x} 162 V${162-h} M${x} ${150-h/3} l-12 -14 M${x} ${154-h/2} l11 -16 M${x-12} ${136-h/3} v-8 M${x+11} ${138-h/2} v-7`, "data-i":i}, co); });
+  // fish
+  const fi = $("fishD"), fpos = [[60,50],[150,40],[240,60],[100,90],[200,100],[280,110],[40,120],[170,75]];
+  fpos.forEach(([x,y],i) => { const g = svgEl("g", {class:"fish", style:`animation-delay:${-i*0.4}s`, "data-i":i}, fi);
+    svgEl("ellipse", {cx:x, cy:y, rx:9, ry:4.5, fill:["#ffd166","#ff9f68","#7bdff2"][i%3]}, g);
+    svgEl("polygon", {points:`${x-8},${y} ${x-15},${y-5} ${x-15},${y+5}`, fill:["#ffd166","#ff9f68","#7bdff2"][i%3]}, g); });
+  // wheat
+  const wh = $("wheatE");
+  for (let i=0;i<14;i++){ const x = 16 + i*21.5; const g = svgEl("g", {"data-i":i}, wh);
+    svgEl("line", {x1:x, y1:150, x2:x, y2:90, "stroke-width":2.5, class:"stem"}, g);
+    svgEl("ellipse", {cx:x, cy:86, rx:4, ry:10, class:"head"}, g); }
+  // people
+  const pe = $("peopleF");
+  for (let i=0;i<20;i++){ const x = 34 + (i%10)*28, y = 34 + Math.floor(i/10)*62; const g = svgEl("g", {"data-i":i}, pe);
+    svgEl("circle", {cx:x, cy:y, r:7}, g); svgEl("path", {d:`M${x-9} ${y+40} v-20 q0 -9 9 -9 q9 0 9 9 v20z`}, g); }
+  // year controls
+  const yr = $("yr");
+  yr.addEventListener("input", () => { imp.playing = false; $("play").textContent = "▶ Play"; imp.year = Number(yr.value); renderImpacts(); });
+  $("play").addEventListener("click", () => {
+    if (imp.playing){ imp.playing = false; $("play").textContent = "▶ Play"; return; }
+    imp.playing = true; $("play").textContent = "❚❚ Pause";
+    if (imp.year >= 2100) imp.year = 2025;
+    let last = 0;
+    const tick = t => {
+      if (!imp.playing) return;
+      if (last) imp.year = Math.min(2100, imp.year + (t-last)/1000*12);
+      last = t; yr.value = Math.round(imp.year); renderImpacts();
+      if (imp.year >= 2100){ imp.playing = false; $("play").textContent = "▶ Play again"; return; }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+}
+function renderImpacts(fp){
+  if (fp) imp.fp = fp;
+  fp = imp.fp;
+  const year = Math.round(imp.year), m = yearState(imp.year, fp.total), T = m.T;
+  const hot = stripeColor(Math.max(1.0, T));
+  $("yrOut").textContent = `${year} · +${fmt(T)}°C`;
+  $("chainstrip").innerHTML =
+    `<span class="c">Your emissions<small>${fmt(fp.total)} t / yr each</small></span><i>→</i>` +
+    `<span class="c">Gases build up<small>heat can't escape</small></span><i>→</i>` +
+    `<span class="c hot" style="background:${hot}">Earth warms<small>+${fmt(T)}°C by ${year}</small></span><i>→</i>` +
+    `<span class="c">Ice melts · seas rise<small>+${fmt(m.seaY,2)} m</small></span><i>→</i>` +
+    `<span class="c">Extremes &amp; losses<small>heat ${fmt(m.heat50)}× · reefs ${m.coral>=99?">99":Math.round(m.coral)}% lost</small></span>`;
+
+  // A: ice & sea
+  const h = 58*Math.max(0.12, 1 - m.glac/50);
+  $("iceA").setAttribute("d", `M0 109 C4 ${109-h*1.15} 70 ${109-h} 120 109 Z`);
+  $("dripsA").setAttribute("opacity", Math.min(1, 0.25 + (T-1.3)*0.45).toFixed(2));
+  const seaTop = 136 - m.seaY*22;
+  $("seaA").setAttribute("y", seaTop.toFixed(1)); $("seaA").setAttribute("height", (180-seaTop).toFixed(1));
+  const fl = Math.max(0.06, interp([[1.3,1],[1.5,0.75],[2,0.4],[2.5,0.18],[3,0.08],[4,0.04]], T));
+  const fw = 52*fl, fx = 262;
+  $("floeA").setAttribute("points", `${fx-fw/2},${seaTop} ${fx-fw/2+4},${seaTop-5} ${fx+fw/2-3},${seaTop-5} ${fx+fw/2},${seaTop}`);
+  $("floeLab").setAttribute("x", fx); $("floeLab").setAttribute("y", seaTop-10);
+  $("rulerA").setAttribute("y1", seaTop); $("rulerA").setAttribute("y2", seaTop);
+  $("rulerLab").setAttribute("y", seaTop+13); $("rulerLab").textContent = `+${fmt(m.seaY,2)} m`;
+  $("kSea").textContent = `+${fmt(m.seaY,2)} m`;
+  $("kGlac").textContent = `${Math.round(m.glac)}%`;
+  $("kArc").textContent = arcticLabel(T);
+
+  // B: heat
+  $("bSky").setAttribute("fill", `rgb(${stripeRGB(0.5 + (T-1.3)*0.55).map((v,i)=>Math.round(v*0.55 + [255,236,200][i]*0.45)).join(",")})`);
+  $("bGlow").setAttribute("r", (30 + (T-1.3)*9).toFixed(1));
+  const haze = Math.min(10, Math.round((T-1.0)*2.6));
+  $("hazeB").querySelectorAll("path").forEach(p => p.setAttribute("display", Number(p.dataset.i) < haze ? "inline" : "none"));
+  const my = 150 - (Math.min(6,T)-0.5)/5.5*104;
+  $("bMerc").setAttribute("y", my.toFixed(1)); $("bMerc").setAttribute("height", (152-my).toFixed(1));
+  $("bTlab").setAttribute("y", (my+4).toFixed(1)); $("bTlab").textContent = `+${fmt(T)}°C`;
+  $("kHeat").textContent = `${fmt(m.heat50)}×`;
+
+  // C: water
+  const drops = Math.round(Math.min(34, m.rain10*11));
+  $("dropsC").querySelectorAll("line").forEach(l => l.setAttribute("display", Number(l.dataset.i) < drops ? "inline" : "none"));
+  const rv = 160 - (m.rain10-1)*22;
+  $("riverC").setAttribute("y", rv.toFixed(1)); $("riverC").setAttribute("height", (172-rv).toFixed(1));
+  const cracks = Math.round(Math.min(9, (m.drought10-1)*3.2));
+  $("cracksC").querySelectorAll("path").forEach(p => p.setAttribute("display", Number(p.dataset.i) < cracks ? "inline" : "none"));
+  const wilt = Math.min(1, Math.max(0, (m.drought10-1.6)/2.4));
+  const leaf = `rgb(${Math.round(70+wilt*100)},${Math.round(150-wilt*60)},${Math.round(60-wilt*20)})`;
+  $("plantC").setAttribute("stroke", leaf);
+  $("leafL").setAttribute("d", `M240 116 Q226 ${108+wilt*14} ${220} ${98+wilt*32}`);
+  $("leafR").setAttribute("d", `M240 108 Q254 ${100+wilt*14} ${260} ${90+wilt*32}`);
+  $("kRain").textContent = `${fmt(m.rain10)}×`; $("kDry").textContent = `${fmt(m.drought10)}×`;
+
+  // D: ocean
+  const bleached = Math.round(7*Math.min(1, (m.coral-40)/60));
+  const CC = ["#ff6f61","#ff9f43","#c56cf0","#ff5e9a","#f7b731","#ff7f50","#e056fd"];
+  $("coralD").querySelectorAll("path").forEach(p => { const i = Number(p.dataset.i); p.setAttribute("stroke", i < bleached ? "#f3efe6" : CC[i]); });
+  const fish = Math.max(1, Math.round(8*(1 - Math.max(0,(m.coral-40))/75)));
+  $("fishD").querySelectorAll(".fish").forEach(f => f.setAttribute("display", Number(f.dataset.i) < fish ? "inline" : "none"));
+  $("phD").textContent = `pH ${(8.1 - 0.13*(T-1.3)).toFixed(2)}`;
+  $("kCoral").textContent = m.coral >= 99 ? ">99%" : `${Math.round(m.coral)}%`;
+  $("kSpec").textContent = `${Math.round(m.species)}%`;
+
+  // E: food
+  const loss = -m.maize;
+  const dead = Math.round(Math.min(14, loss/40*14));
+  $("wheatE").querySelectorAll("g").forEach(g => {
+    const i = Number(g.dataset.i), d = (i*5)%14 < dead;
+    const top = 150 - 60*(1 - loss/100*1.6)*(d?0.7:1);
+    const st = g.querySelector(".stem"), hd = g.querySelector(".head");
+    st.setAttribute("y2", top.toFixed(1)); st.setAttribute("stroke", d ? "#9c7b4b" : "#6f9a3a");
+    hd.setAttribute("cy", (top-8).toFixed(1)); hd.setAttribute("fill", d ? "#8a6a3f" : "#e0b13a");
+    hd.setAttribute("transform", d ? `rotate(35 ${hd.getAttribute("cx")} ${top})` : "");
+  });
+  $("eSun").setAttribute("r", (16 + (T-1.3)*4).toFixed(1));
+  $("kMaize").textContent = `${loss>0?"−":"+"}${Math.abs(Math.round(loss))}%`;
+  $("kWheat").textContent = `${m.wheat<0?"−":"+"}${Math.abs(Math.round(m.wheat))}%`;
+
+  // F: people
+  const out = Math.round(20*m.niche/100);
+  $("peopleF").querySelectorAll("g").forEach(g => g.setAttribute("fill", Number(g.dataset.i) < out ? "#e0532c" : "#9fb0bd"));
+  $("peopleLab").textContent = `${out} in 20 people live where it's too hot to thrive`;
+  $("kNiche").textContent = `${Math.round(m.niche)}%`;
+}
+
+/* ===================== render ===================== */
+function render(){
+  const fp = compute(state);
+  updateOutputs(fp);
+  sceneUpdate(fp, warmingFor(fp.total));
+  renderImpacts(fp);
+  renderFootprint(fp);
+  renderSankey(fp);
+  const {T, m} = renderWarming(fp);
+  renderStripes(T);
+  renderPlace(m);
+  renderSwaps(fp);
+}
+
+buildControls();
+buildPlaces();
+buildStripes();
+buildScene();
+buildImpacts();
+syncControls();
+render();
+})();
+</script>

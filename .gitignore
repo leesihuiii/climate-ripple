@@ -1,0 +1,8 @@
+# Secrets — never commit these
+.env
+.env.*
+!.env.example
+
+# Vercel and OS files
+.vercel
+.DS_Store
