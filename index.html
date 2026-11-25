@@ -4,29 +4,29 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Sans:wght@400..700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500..700&family=Nunito:wght@400..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: warming-stripes hero, then a sticky "your life" control panel beside a scrolling cause → effect story */
 :root{
-  --bg:#eef3f5; --surface:#ffffff; --surface-2:#e2eaee; --ink:#10212e; --muted:#4d606e; --line:#c8d5dc;
-  --accent:#0b6e8a; --accent-ink:#ffffff; --halo:#ffffff;
-  --c-travel:#2f66d0; --c-home:#c4850a; --c-food:#3c8c45; --c-stuff:#9a4fc0; --c-shared:#6c7c89;
-  --good:#2f7d4a; --warn:#a8680b; --bad:#c0392b;
-  --f-display:"Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
-  --f-body:"Instrument Sans", "Helvetica Neue", "Segoe UI", system-ui, sans-serif;
+  --bg:#fff7d1; --surface:#fffdf4; --surface-2:#fbeebb; --ink:#2a2a3a; --muted:#6b6450; --line:#efdf9f;
+  --accent:#e8532a; --accent-ink:#ffffff; --halo:#ffffff; --sun:#ffc83d;
+  --c-travel:#3b7bff; --c-home:#f2a11f; --c-food:#2fb455; --c-stuff:#b45cf0; --c-shared:#7d8fa3;
+  --good:#22a05a; --warn:#d98a0b; --bad:#e0412c;
+  --f-display:"Fredoka", "Avenir Next Rounded", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --f-body:"Nunito", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --f-mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#0b151c; --surface:#122029; --surface-2:#1a2a35; --ink:#e3ecf1; --muted:#93a6b3; --line:#263a47;
-  --accent:#53b8d4; --accent-ink:#04202a; --halo:#122029;
-  --c-travel:#6b97ee; --c-home:#e6ae45; --c-food:#6cbf72; --c-stuff:#c28ae0; --c-shared:#9aa9b5;
-  --good:#5cc07f; --warn:#e3a646; --bad:#ef6f5e; color-scheme:dark;
+  --bg:#0e1a2b; --surface:#16253a; --surface-2:#1e3150; --ink:#eaf3ff; --muted:#9fb3c9; --line:#2a4160;
+  --accent:#ff8a5c; --accent-ink:#2a0f04; --halo:#16253a; --sun:#ffd25e;
+  --c-travel:#7aa4ff; --c-home:#ffc04d; --c-food:#5fd685; --c-stuff:#cf8cff; --c-shared:#a9b7c6;
+  --good:#5fd685; --warn:#ffc04d; --bad:#ff7a66; color-scheme:dark;
 }}
 :root[data-theme="dark"]{
-  --bg:#0b151c; --surface:#122029; --surface-2:#1a2a35; --ink:#e3ecf1; --muted:#93a6b3; --line:#263a47;
-  --accent:#53b8d4; --accent-ink:#04202a; --halo:#122029;
-  --c-travel:#6b97ee; --c-home:#e6ae45; --c-food:#6cbf72; --c-stuff:#c28ae0; --c-shared:#9aa9b5;
-  --good:#5cc07f; --warn:#e3a646; --bad:#ef6f5e; color-scheme:dark;
+  --bg:#0e1a2b; --surface:#16253a; --surface-2:#1e3150; --ink:#eaf3ff; --muted:#9fb3c9; --line:#2a4160;
+  --accent:#ff8a5c; --accent-ink:#2a0f04; --halo:#16253a; --sun:#ffd25e;
+  --c-travel:#7aa4ff; --c-home:#ffc04d; --c-food:#5fd685; --c-stuff:#cf8cff; --c-shared:#a9b7c6;
+  --good:#5fd685; --warn:#ffc04d; --bad:#ff7a66; color-scheme:dark;
 }
 *{box-sizing:border-box}
 body{background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:15px; line-height:1.55; margin:0}
@@ -46,7 +46,7 @@ h1,h2,h3{font-family:var(--f-display); text-wrap:balance; margin:0; line-height:
 .hero-stat .big{font-family:var(--f-display); font-weight:700; font-size:clamp(34px,5vw,52px); line-height:1}
 .hero-stat .big small{font-size:.45em; font-weight:600; color:var(--muted)}
 .stripes-wrap{margin-top:28px; position:relative}
-.stripes{display:flex; height:110px; border-radius:6px; overflow:hidden}
+.stripes{display:flex; height:110px; border-radius:16px; overflow:hidden}
 .stripes i{flex:1 1 0; display:block; transition:background-color .6s ease}
 .stripes-axis{position:relative; height:18px; margin-top:8px; font-family:var(--f-mono); font-size:12px; color:var(--muted)}
 .stripes-axis span{position:absolute; top:0; white-space:nowrap; transform:translateX(-50%)}
@@ -61,7 +61,7 @@ h1,h2,h3{font-family:var(--f-display); text-wrap:balance; margin:0; line-height:
 @media (min-width:1180px){ .layout{grid-template-columns:370px minmax(0,1fr)} .controls{position:sticky; top:16px; max-height:calc(100vh - 32px); overflow:auto} }
 
 /* ---------- controls ---------- */
-.controls{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px; display:flex; flex-direction:column; gap:18px; min-width:0}
+.controls{background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:18px; display:flex; flex-direction:column; gap:18px; min-width:0}
 .controls h2{font-size:22px}
 .presets{display:flex; flex-wrap:wrap; gap:6px}
 .chip{font:inherit; font-size:13px; padding:6px 10px; border-radius:999px; border:1px solid var(--line); background:var(--surface-2); color:var(--ink); cursor:pointer}
@@ -78,13 +78,13 @@ h1,h2,h3{font-family:var(--f-display); text-wrap:balance; margin:0; line-height:
 input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:22px}
 .seg{display:flex; flex-wrap:wrap; gap:4px}
 .seg input{position:absolute; opacity:0; pointer-events:none}
-.seg label{font-size:12.5px; padding:5px 9px; border-radius:6px; border:1px solid var(--line); cursor:pointer; background:var(--surface)}
-.seg input:checked + label{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+.seg label{font-size:12.5px; padding:5px 11px; border-radius:999px; border:1px solid var(--line); cursor:pointer; background:var(--surface)}
+.seg input:checked + label{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
 .seg input:focus-visible + label{outline:2px solid var(--accent); outline-offset:2px}
 
 /* ---------- content ---------- */
 .content{display:flex; flex-direction:column; gap:28px; min-width:0}
-.panel{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:22px; min-width:0}
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:20px; padding:22px; min-width:0}
 .panel > header{display:flex; flex-direction:column; gap:6px; margin-bottom:16px}
 .panel h2{font-size:clamp(22px,3vw,28px); font-weight:700}
 .panel header p{margin:0; color:var(--muted); max-width:68ch}
@@ -96,7 +96,7 @@ input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:22px}
 .fp-big small{font-size:.32em; font-weight:600; color:var(--muted); letter-spacing:0}
 .fp-verdict{font-size:15.5px; max-width:46ch}
 .fp-bar-wrap{position:relative; margin-top:34px}
-.fp-bar{display:flex; height:30px; border-radius:6px; overflow:hidden; background:var(--surface-2)}
+.fp-bar{display:flex; height:30px; border-radius:12px; overflow:hidden; background:var(--surface-2)}
 .fp-bar div{height:100%; transition:width .35s ease; min-width:0}
 .fp-marks{position:absolute; inset:-26px 0 0 0; pointer-events:none}
 .fp-mark{position:absolute; top:0; bottom:-4px; border-left:1.5px dashed var(--ink); opacity:.7}
@@ -148,7 +148,7 @@ input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:22px}
 #effect{container-type:inline-size}
 .cards{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px}
 @container (min-width:760px){ .cards{grid-template-columns:repeat(4,minmax(0,1fr))} }
-.card{border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:6px; background:var(--bg); min-width:0}
+.card{border:1px solid var(--line); border-radius:16px; padding:14px; display:flex; flex-direction:column; gap:6px; background:var(--bg); min-width:0}
 .card .v{font-family:var(--f-display); font-weight:700; font-size:28px; line-height:1}
 .card .l{font-size:13.5px}
 .card .s{font-size:12px; color:var(--muted)}
@@ -165,18 +165,18 @@ input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:22px}
 
 /* swaps */
 .swaps{display:grid; gap:10px}
-.swap{display:grid; grid-template-columns:1fr auto; gap:6px 14px; align-items:center; border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:var(--bg)}
+.swap{display:grid; grid-template-columns:1fr auto; gap:6px 14px; align-items:center; border:1px solid var(--line); border-radius:16px; padding:12px 14px; background:var(--bg)}
 .swap .what{font-weight:600; display:flex; gap:8px; align-items:center}
 .swap .save{font-family:var(--f-mono); font-size:12.5px; color:var(--muted); grid-column:1}
 .swap .bar{grid-column:1 / -1; height:4px; border-radius:2px; background:var(--good); opacity:.85}
-.swap button{grid-row:1 / span 2; grid-column:2; font:inherit; font-size:13px; font-weight:600; padding:8px 14px; border-radius:8px; border:1px solid var(--accent); background:transparent; color:var(--accent); cursor:pointer}
+.swap button{grid-row:1 / span 2; grid-column:2; font:inherit; font-size:13px; font-weight:600; padding:8px 16px; border-radius:999px; border:1.5px solid var(--accent); background:transparent; color:var(--accent); cursor:pointer}
 .swap button:hover{background:var(--accent); color:var(--accent-ink)}
 .empty{color:var(--muted)}
-.collective{margin-top:16px; padding:14px; border-radius:10px; background:var(--surface-2); font-size:14px}
+.collective{margin-top:16px; padding:14px; border-radius:16px; background:var(--surface-2); font-size:14px}
 
 /* sky scene */
-.scene-scroll{overflow-x:auto; border-radius:10px}
-.scene{width:100%; min-width:680px; display:block; border-radius:10px; background:#5a8a4a}
+.scene-scroll{overflow-x:auto; border-radius:16px}
+.scene{width:100%; min-width:680px; display:block; border-radius:16px; background:#5a8a4a}
 .scene .flow, .scene .flow path{stroke-dasharray:10 9; animation:flow 1.1s linear infinite}
 @keyframes flow{to{stroke-dashoffset:-19}}
 .scene .sc-tag{font-family:var(--f-mono); font-size:10.5px; letter-spacing:.1em; fill:#ffffff; fill-opacity:.7}
@@ -193,7 +193,7 @@ input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:22px}
 .scene-cap{margin-top:14px; display:grid; gap:8px}
 .scene-cap .row{display:flex; flex-wrap:wrap; gap:6px 16px; align-items:baseline}
 .scene-cap .ttl{font-family:var(--f-display); font-weight:700; font-size:17px}
-.gasbar{display:flex; height:26px; border-radius:6px; overflow:hidden; background:var(--surface-2)}
+.gasbar{display:flex; height:26px; border-radius:12px; overflow:hidden; background:var(--surface-2)}
 .gasbar div{display:flex; align-items:center; padding-left:8px; color:#fff; font-family:var(--f-mono); font-size:11.5px; white-space:nowrap; overflow:hidden; transition:width .35s ease; min-width:0}
 .gas-key{display:flex; flex-wrap:wrap; gap:4px 14px; font-size:13px}
 .gas-key span{display:inline-flex; align-items:center; gap:6px}
@@ -202,7 +202,7 @@ input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:22px}
 /* warming → impacts */
 #impacts{container-type:inline-size}
 .chainstrip{display:flex; flex-wrap:wrap; align-items:center; gap:6px 4px; margin-bottom:14px}
-.chainstrip .c{padding:7px 11px; border-radius:8px; background:var(--surface-2); font-size:13.5px; font-weight:600; display:flex; flex-direction:column; line-height:1.2}
+.chainstrip .c{padding:7px 14px; border-radius:14px; background:var(--surface-2); font-size:13.5px; font-weight:600; display:flex; flex-direction:column; line-height:1.2}
 .chainstrip .c small{font-family:var(--f-mono); font-weight:500; font-size:11.5px; color:var(--muted)}
 .chainstrip .c.hot{color:#fff}
 .chainstrip .c.hot small{color:#fff; opacity:.85}
@@ -210,16 +210,16 @@ input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:22px}
 .yrbar{display:flex; align-items:center; gap:12px; margin-bottom:16px; flex-wrap:wrap}
 .yrbar input{flex:1 1 200px; min-width:0}
 .yrbar output{font-family:var(--f-mono); font-size:14px; font-weight:500; min-width:15ch}
-.playbtn{font:inherit; font-weight:600; font-size:14px; padding:8px 16px; border-radius:8px; border:0; background:var(--accent); color:var(--accent-ink); cursor:pointer}
+.playbtn{font:inherit; font-weight:600; font-size:14px; padding:9px 20px; border-radius:999px; border:0; background:var(--accent); color:var(--accent-ink); cursor:pointer}
 .ics{display:grid; grid-template-columns:1fr; gap:14px}
 @container (min-width:540px){ .ics{grid-template-columns:repeat(2,minmax(0,1fr))} }
 @container (min-width:900px){ .ics{grid-template-columns:repeat(3,minmax(0,1fr))} }
-.ic{border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--bg); display:flex; flex-direction:column; min-width:0}
+.ic{border:1px solid var(--line); border-radius:16px; overflow:hidden; background:var(--bg); display:flex; flex-direction:column; min-width:0}
 .ic-art{display:block; width:100%; height:auto}
 .ic-body{padding:12px 14px 14px; display:flex; flex-direction:column; gap:8px; flex:1}
 .ic-body h3{font-size:17px}
 .ic-chain{display:flex; flex-wrap:wrap; align-items:center; gap:4px; font-size:12px}
-.ic-chain span{background:var(--surface-2); padding:2px 7px; border-radius:5px}
+.ic-chain span{background:var(--surface-2); padding:2px 9px; border-radius:999px}
 .ic-chain i{font-style:normal; color:var(--muted)}
 .ic-stats{display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:auto}
 .ic-stats div{display:flex; flex-direction:column; min-width:0}
@@ -242,6 +242,23 @@ input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:22px}
   .stripes{height:80px} .today-mark{height:92px}
 }
 @media (prefers-reduced-motion: reduce){ *{transition:none !important; animation:none !important} }
+
+/* chirpy layer: soft shadows, pills and springy hovers */
+.panel, .controls{border-color:transparent; box-shadow:0 1px 0 var(--line), 0 14px 32px -22px rgba(30,100,180,.45)}
+.hero h1{font-weight:700; letter-spacing:-.01em}
+.hero h1 .pop{color:var(--accent); display:inline-block; transform:rotate(-2deg)}
+.step{display:inline-block; align-self:flex-start; background:var(--surface-2); padding:3px 11px; border-radius:999px; font-weight:500}
+.panel h2, .controls h2{font-weight:600}
+.chip, .playbtn, .swap button, .seg label{transition:transform .18s cubic-bezier(.3,1.6,.5,1), background-color .15s, color .15s}
+.chip:hover, .playbtn:hover, .swap button:hover, .seg label:hover{transform:translateY(-2px)}
+.chip:active, .playbtn:active, .swap button:active{transform:scale(.95)}
+.ic, .card, .swap{transition:transform .22s cubic-bezier(.3,1.6,.5,1), box-shadow .22s}
+.ic:hover, .card:hover{transform:translateY(-4px) rotate(-.4deg); box-shadow:0 16px 28px -18px rgba(30,100,180,.55)}
+.swap:hover{transform:translateX(3px)}
+.playbtn{box-shadow:0 4px 0 color-mix(in srgb, var(--accent) 70%, #000)}
+.playbtn:active{box-shadow:0 1px 0 color-mix(in srgb, var(--accent) 70%, #000)}
+.dot{border-radius:50%}
+input[type=range]{accent-color:var(--accent)}
 </style>
 
 <div class="wrap">
@@ -249,7 +266,7 @@ input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:22px}
     <div class="hero-top">
       <div>
         <div class="eyebrow">How your daily life travels into the climate, and back to you</div>
-        <h1>Climate Ripple</h1>
+        <h1>Climate <span class="pop">Ripple</span></h1>
         <p class="lede">Your daily life → gases → a hotter planet → back to you.</p>
       </div>
       <div class="hero-stat">
